@@ -1,5 +1,9 @@
 # React Redux Intermediate
 
+This is an intermediate-level tutorial (tied in with a Codementor.io course) that presumes that readers are proficient with JavaScript, have at least a passing familiarity with JavaScript 2015 syntax, and have done some basic work with React.js.
+
+## Instructions
+
 1. Create the git repo and clone it
 2. Add or update the `.gitignore` file
 
