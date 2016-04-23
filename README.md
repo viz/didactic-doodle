@@ -14,7 +14,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   ```
 
 3. Run `npm init -y` then update the `package.json` file, or leave off the `-y` and answer the questions at the command line.
-4. Install webpack locally as a development dependency with `npm i -D webpack` (`-D` is the same as `--save-dev`).
+4. Install webpack locally as a development dependency with `npm i -D webpack` (`i` is short for `install` and `-D` is the same as `--save-dev`).
 5. Create the folders and files we'll need:
 
   ```sh
@@ -275,7 +275,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   ```
   --require ./test/setup
   --full-trace
-  --compilers js:babel-core/register
+  --compilers js:babel-register
   ```
 
 21. Before we run the tests, we want to set up our environment. We'll use [jsdom](https://github.com/tmpvar/jsdom), which is a "JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js". We'll add the following to our `/test/setup.js` file. I've swiped the [latest recommendation](https://github.com/airbnb/enzyme/blob/master/docs/guides/jsdom.md#using-enzyme-with-jsdom) and updated it slightly to use the spread operator and more ES6:
