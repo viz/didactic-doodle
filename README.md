@@ -99,8 +99,8 @@
 
   ```js
   // webpack.config.babel.js
-  import path from 'path'
   import merge from 'webpack-merge'
+  import path from 'path'
 
   const TARGET = process.env.npm_lifecycle_event
 
@@ -111,7 +111,6 @@
     build: path.join(__dirname, 'build')
   }
 
-  // See https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md
   const common = {
     entry: {
       app: PATHS.app
@@ -407,10 +406,10 @@
   }
   ```
 
-29. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
+29. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better. Add the import to the imports at the top of the file.
 
   ```js
-  const stylelint = require('stylelint')
+  import stylelint from 'stylelint'
 
   module: {
     preLoaders: [
@@ -467,7 +466,96 @@
 
   [babel-preset-react-hmre]()
 
-32. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
+32. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
+
+  ```js
+  import webpack from 'webpack'
+  import merge from 'webpack-merge'
+  import path from 'path'
+  import stylelint from 'stylelint'
+
+  const TARGET = process.env.npm_lifecycle_event
+
+  process.env.BABEL_ENV = TARGET
+
+  const PATHS = {
+    app: path.join(__dirname, 'app'),
+    build: path.join(__dirname, 'build')
+  }
+
+  const common = {
+    entry: {
+      app: PATHS.app
+    },
+    resolve: {
+      extensions: [ '', '.js', '.jsx' ]
+    },
+    output: {
+      path: PATHS.build,
+      filename: 'app.js'
+    },
+    module: {
+      preLoaders: [
+        {
+          test: /\.css$/,
+          loaders: [ 'postcss' ],
+          include: PATHS.app
+        },
+        {
+          test: /\.jsx?$/,
+          loaders: [ 'eslint' ],
+          include: PATHS.app
+        }
+      ],
+      loaders: [
+        {
+          test: /\.css$/,
+          loaders: [ 'style', 'css', 'myth' ],
+          include: PATHS.app
+        },
+        {
+          test: /\.jsx?$/,
+          loaders: [ 'babel?cacheDirectory' ],
+          include: PATHS.app
+        }
+      ]
+    },
+    postcss: function () {
+      return [stylelint({
+        rules: {
+          'color-hex-case': 'lower'
+        }
+      })]
+    }
+  }
+
+  const startConfig = {
+    devtool: 'eval-source-map',
+    devServer: {
+      contentBase: PATHS.build,
+      historyApiFallback: true,
+      hot: true,
+      inline: true,
+      progress: true,
+      stats: 'errors-only',
+      host: process.env.HOST,
+      port: process.env.PORT
+    },
+    plugins: [
+      new webpack.HotModuleReplacementPlugin()
+    ]
+  }
+
+  const buildConfig = {}
+
+  const config = (TARGET === 'start' || !TARGET)
+    ? merge(common, startConfig)
+    : merge(common, buildConfig)
+
+  export default config
+  ```
+
+33. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
 
   ```js
   "build": "webpack",
@@ -480,7 +568,7 @@
   - Use `npm run lint` to lint the source code and report warnings and errors
   - Use `npm test` to run the specifications in `/test/tests.js`
 
-33. Now we can run the Webpack Dev Server.
+34. Now we can run the Webpack Dev Server.
 
   ```sh
   npm start
@@ -488,13 +576,13 @@
 
   You should be able to see the app at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it.
 
-34. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
+35. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
 
   ```sh
   npm i -S react-bootstrap
   ```
 
-35. We can add a header. Create `/app/components/header.jsx` and add:
+36. We can add a header. Create `/app/components/header.jsx` and add:
 
   ```jsx
   import React from 'react'
@@ -518,7 +606,7 @@
 
   Whoa! Where did all this come from? Simple. I just went to the react-bootstrap [Navbar Basic Example](https://react-bootstrap.github.io/components.html#navbars-basic), clicked on "show code", and swiped the JSX code. Then I dropped the dropdown (heh) and modified the code as necessary. ESLint warned me which imports I was missing so I added them up top. The links won't work, but we have a navbar at least and that's a start. We got a lot of benefit for just a few seconds work.
 
-36. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
+37. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
 
   ```jsx
   import React from 'react'
