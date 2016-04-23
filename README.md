@@ -320,7 +320,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   4. [enzyme](https://github.com/airbnb/enzyme) is AirBnB's JavaScript testing utilities for React and is easier to use than the Facebook utilities
   5. [jsdom](https://github.com/tmpvar/jsdom) is a JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js
   6. [mocha](https://mochajs.org/) is a feature-rich JavaScript test framework running on Node.js and in the browser
-  7. [react-addons-test-utils](https://facebook.github.io/react/docs/test-utils.html) are the Facebook React test utilities
+  7. [react-addons-test-utils](https://facebook.github.io/react/docs/test-utils.html) are the Facebook React test utilities (this is an implicit dependency of enzyme in order to support react@0.13-14)
   8. [sinon](http://sinonjs.org/) provides standalone test spies, stubs and mocks for JavaScript
 
 23. Now we can set up our specifications and add them to the `/test/tests.js` file. The comment at the top prevents ESLint from complaining that `describe` and `it` are not defined in the file.
@@ -477,11 +477,11 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   npm i -D style-loader css-loader myth-loader stylelint postcss-loader
   ```
 
-  1. [style-loader]()
-  2. [css-loader]()
-  3. [myth-loader]()
-  4. [stylelint]()
-  5. [postcss-loader]()
+  1. [style-loader](https://github.com/webpack/style-loader) adds the CSS to the exported DOM in a `<style>` element
+  2. [css-loader](https://github.com/webpack/css-loader) loads CSS file(s) with resolved imports and returns CSS code
+  3. [myth-loader](https://github.com/besarthoxhaj/myth-loader) converts future CSS syntax to current syntax with [myth.io](http://www.myth.io/)
+  4. [stylelint](https://github.com/stylelint/stylelint): a mighty, modern [CSS linter](http://stylelint.io/)
+  5. [postcss-loader](https://github.com/postcss/postcss-loader): postprocess your CSS with PostCSS plugins (we could also have used the [stylelint-loader](https://www.npmjs.com/package/stylelint-loader) directly, but I thought it would be nice to see some postcss as well)
 
 32. We need the `hmre` plugin, too.
 
@@ -489,7 +489,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   npm i -D babel-preset-react-hmre
   ```
 
-  [babel-preset-react-hmre]()
+  [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre) This preset will configure Babel 6 for [HMR](https://github.com/gaearon/react-transform-hmr) and friends. It is recommended that this preset only be configured for your development builds.
 
 33. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
 
@@ -518,6 +518,12 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
     output: {
       path: PATHS.build,
       filename: 'app.js'
+    },
+    externals: {
+      'jsdom': 'window',
+      'react/lib/ReactContext': 'window',
+      'react/lib/ExecutionEnvironment': true,
+      'react/addons': true
     },
     module: {
       preLoaders: [
