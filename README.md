@@ -481,7 +481,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   2. [css-loader](https://github.com/webpack/css-loader) loads CSS file(s) with resolved imports and returns CSS code
   3. [myth-loader](https://github.com/besarthoxhaj/myth-loader) converts future CSS syntax to current syntax with [myth.io](http://www.myth.io/)
   4. [stylelint](https://github.com/stylelint/stylelint): a mighty, modern [CSS linter](http://stylelint.io/)
-  5. [postcss-loader](https://github.com/postcss/postcss-loader): postprocess your CSS with PostCSS plugins (we could also have used the [stylelint-loader](https://www.npmjs.com/package/stylelint-loader) directly, but I thought it would be nice to see some postcss as well)
+  5. [postcss-loader](https://github.com/postcss/postcss-loader) postprocesses your CSS with [PostCSS](http://postcss.org/) plugins (we could also have used the [stylelint-loader](https://www.npmjs.com/package/stylelint-loader) directly, but I thought it would be nice to see some postcss as well)
 
 32. We need the `hmre` plugin, too.
 
