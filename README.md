@@ -156,9 +156,9 @@
   render(<App/>, div)
   ```
 
-  We need React, of course. It also gives us the JSX capability (Extended JavaScript). As we're working with the DOM (in browserland), we'll need the ReactDOM, too. But we can just grab the one function we need: `render`.
+  We need React, of course. It also gives us the JSX (Extended JavaScript) capability. As we're working with the DOM (in browserland), we'll need the ReactDOM, too. But we can just grab the one function we need: `render`.
 
-  We use the Webpack `style-loader` to load the styles in our `/app/main.css` file (processing them through the myth- and css-loaders first).
+  We use the Webpack `style-loader` to load the styles in our `/app/main.css` file (processing them through the `myth-loader` and `css-loader` first).
 
   Then we import our App component, create a new HTML div element, append it to the body, and then render our App component into it.
 
@@ -173,7 +173,7 @@
 
   ```
 
-  Keeping it simple to start. We import React, and build a *presentation* component using a simple ES6 fat arrow function to return our JSX. Then we export it for use in `/app/index.jsx` and elsewhere.
+  Keep it simple to start. We import React, and build a *presentation* component using a simple ES6 fat arrow function to return our JSX. Then we export it for use in `/app/index.jsx` and elsewhere.
 
 15. We'll want some help with our syntax, so let's install a linter. ESLint is the current favorite. We'll add some plugins and a loader to make it work with Webpack.
 
@@ -191,7 +191,7 @@
   5. [eslint-config-standard-react](https://github.com/feross/eslint-config-standard-react) adds Standard.js React support
   6. [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) adds React-specific linting rules
   7. [eslint-plugin-promise](https://github.com/xjamundx/eslint-plugin-promise) enforces best practices for JS promises
-  8. [eslint-plugin-standard](https://github.com/xjamundx/eslint-plugin-standard) adds some extra rules needed for standard.js
+  8. [eslint-plugin-standard](https://github.com/xjamundx/eslint-plugin-standard) adds some extra rules needed for Standard.js
 
 16. We don't want to lint everything twice, so let's add our `build` folder to `.eslintignore`.
 
@@ -350,6 +350,10 @@
   "lint": "eslint . --ext .js --ext .jsx --cache || true",
   "test": "mocha --opts ./test/mocha.opts test/tests.js"
   ```
+
+  - Use `npm run build` to compile and bundle the source code into `/build/app.js`
+  - Use `npm run lint` to lint the source code and report warnings and errors
+  - Use `npm test` to run the specifications in `/test/tests.js`
 
 25. Finally, let's set up the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
 
