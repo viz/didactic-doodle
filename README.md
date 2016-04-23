@@ -388,137 +388,149 @@
   }
   ```
 
-- We'll need to configure babel as well. Add the extensions to resolve:
+28. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
 
-```js
-resolve: {
-  extensions: [ '', '.js', '.jsx' ]
-}
-```
+  ```js
+  resolve: {
+    extensions: [ '', '.js', '.jsx' ]
+  }
+  ```
 
-- Add the preloaders:
+29. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
 
-```js
-module: {
-  preLoaders: [
-    {
-      test: /\.jsx?$/,
-      loaders: [ 'eslint' ],
-      include: PATHS.app
-    }
-  ],
-  loaders: [
-    {
-      test: /\.jsx?$/,
-      loaders: [ 'babel?cacheDirectory' ],
-      include: PATHS.app
-    }
-  ]
-}
-```
+  ```js
+  module: {
+    preLoaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: [ 'eslint' ],
+        include: PATHS.app
+      }
+    ],
+    loaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: [ 'babel?cacheDirectory' ],
+        include: PATHS.app
+      }
+    ]
+  }
+  ```
 
-- While we're at it, let's add the CSS loaders, too:
+30. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
 
-```js
-const stylelint = require('stylelint')
+  ```js
+  const stylelint = require('stylelint')
 
-module: {
-  preLoaders: [
-    {
-      test: /\.css$/,
-      loaders: [ 'postcss' ],
-      include: PATHS.app
-    },
-    {
-      test: /\.jsx?$/,
-      loaders: [ 'eslint' ],
-      include: PATHS.app
-    }
-  ],
-  loaders: [
-    {
-      test: /\.css$/,
-      loaders: [ 'style', 'css', 'myth' ],
-      include: PATHS.app
-    },
-    {
-      test: /\.jsx?$/,
-      loaders: [ 'babel?cacheDirectory' ],
-      include: PATHS.app
-    }
-  ]
-},
-postcss: function () {
-  return [stylelint({
-    rules: {
-      'color-hex-case': 'lower'
-    }
-  })]
-}
-```
+  module: {
+    preLoaders: [
+      {
+        test: /\.css$/,
+        loaders: [ 'postcss' ],
+        include: PATHS.app
+      },
+      {
+        test: /\.jsx?$/,
+        loaders: [ 'eslint' ],
+        include: PATHS.app
+      }
+    ],
+    loaders: [
+      {
+        test: /\.css$/,
+        loaders: [ 'style', 'css', 'myth' ],
+        include: PATHS.app
+      },
+      {
+        test: /\.jsx?$/,
+        loaders: [ 'babel?cacheDirectory' ],
+        include: PATHS.app
+      }
+    ]
+  },
+  postcss: function () {
+    return [stylelint({
+      rules: {
+        'color-hex-case': 'lower'
+      }
+    })]
+  }
+  ```
 
-- We'll need to add the loaders:
+31. We'd better add the loader and lint dependencies:
 
-```sh
-npm i -D css-loader myth-loader postcss-loader style-loader stylelint
-```
+  ```sh
+  npm i -D style-loader css-loader myth-loader stylelint postcss-loader
+  ```
 
-- And we'll need to install hmre plugin, too:
+  1. [style-loader]()
+  2. [css-loader]()
+  3. [myth-loader]()
+  4. [stylelint]()
+  5. [postcss-loader]()
 
-```sh
-npm i -D babel-preset-react-hmre
-```
+32. We need the `hmre` plugin, too.
 
-- Now it should run with `npm start` and you can see the app at [http://localhost:8080/](http://localhost:8080/)
-- If we make changes and save them, the app reloads instantly
-- Let's add `react-bootstrap` and have some fun:
+  ```sh
+  npm i -D babel-preset-react-hmre
+  ```
 
-```sh
-npm i -S react-bootstrap
-```
+  [babel-preset-react-hmre]()
 
-- We can add a header. In `/app/components/header.jsx` add:
+33. Now we can run the Webpack Dev Server.
 
-```jsx
-import React from 'react'
+  ```sh
+  npm start
+  ```
 
-import {
-  Nav,
-  Navbar,
-  NavItem
-} from 'react-bootstrap'
+  You should be able to see the app at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it.
 
-const Header = () => <Navbar>
-  <Navbar.Header>
-    <Navbar.Brand>
-      <a href='#'>Setup</a>
-    </Navbar.Brand>
-  </Navbar.Header>
-  <Nav>
-    <NavItem eventKey={1} href='#'>Link</NavItem>
-    <NavItem eventKey={2} href='#'>Link</NavItem>
-  </Nav>
-</Navbar>
+34. Now let's add `react-bootstrap` and have some fun:
 
-export default Header
-```
+  ```sh
+  npm i -S react-bootstrap
+  ```
 
-- And we'll update our `/app/components/app.jsx` file to this:
+35. We can add a header. Create `/app/components/header.jsx` and add:
 
-```jsx
-import React from 'react'
+  ```jsx
+  import React from 'react'
 
-import { Grid } from 'react-bootstrap'
+  import { Nav, Navbar, NavItem } from 'react-bootstrap'
 
-import Header from './header.jsx'
+  const Header = () => <Navbar>
+    <Navbar.Header>
+      <Navbar.Brand>
+        <a href='#'>Didactic Doodle</a>
+      </Navbar.Brand>
+    </Navbar.Header>
+    <Nav>
+      <NavItem eventKey={1} href='#'>Home</NavItem>
+      <NavItem eventKey={2} href='#'>About</NavItem>
+    </Nav>
+  </Navbar>
 
-const App = () => <div>
-  <Header/>
-  <Grid><p>Welcome to the Zapp!</p></Grid>
-</div>
+  export default Header
+  ```
 
-export default App
-```
+  Whoa! Where did all this come from? Simple. I just went to the react-bootstrap [Navbar Basic Example](https://react-bootstrap.github.io/components.html#navbars-basic), clicked on "show code", and swiped the JSX code. Then I dropped the dropdown (heh) and modified the code as necessary. ESLint warned me which imports I was missing so I added them up top. The links won't work, but we have a navbar at least and that's a start. We got a lot of benefit for just a few seconds work.
+
+36. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
+
+  ```jsx
+  import React from 'react'
+
+  import { Grid } from 'react-bootstrap'
+
+  import Header from './header.jsx'
+
+  const App = () => <div>
+    <Header/>
+    <Grid><p>Welcome to the Zapp!</p></Grid>
+  </div>
+
+  export default App
+  ```
 
 - Take a look at our app now and we should see a nice navbar at the top
 - Now, let's add some pages:
