@@ -26,280 +26,347 @@
   touch test/mocha.opts
   touch test/setup.js
   touch test/tests.js
-  touch webpack.config.js
+  touch webpack.config.babel.js
   ```
 
   There are as many ways to set up your folder hierarchy as there are developers, it seems. This way is pretty arbitrary and I've used many others. Some prefer to call the `app` folder `src`. Some prefer to call the `build` folder `dist` or `public` or (confusingly) `app`. Some use the `jsx` extension, others prefer to keep it to `js`. The `main.css` file could be `styles.css` or `index.css` or `app.css` or something else I haven't thought of.
 
-  Some developers like to use `PascalCase` or `camelCase` for the file names. As not all filesystems are case sensitive, I'm not a huge fan of that practice (though I've used it occasionally). I prefer `train-case`.
+  Some developers like to use `PascalCase` or `camelCase` for the file names. As not all filesystems are case sensitive, I'm not a huge fan of that practice (though I've used it occasionally). I prefer `train-case`. The important point is to be *consistent*. And if your team has an established style guide, then follow it precisely. Development is a team effort; express your individuality somewhere else.
 
 6. Add the HTML:
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Setup</title>
+      <title>Setup</title>
 
-    <link rel="icon" href="/favicon.png">
+      <link rel="icon" href="/favicon.png">
 
-    <link rel="stylesheet" href="/bootstrap.css">
-  </head>
-  <body>
-    <script src="/app.js"></script>
-  </body>
-</html>
-```
+      <link rel="stylesheet" href="/bootstrap.css">
+    </head>
+    <body>
+      <script src="/app.js"></script>
+    </body>
+  </html>
+  ```
 
-- Add the `bootstrap.css` from bootswatch
-- Add some CSS from myth.io:
+  Some developers like to add a `<div/>` element into which they can render the React DOM. I prefer to create that element on the fly (see `/app/index.jsx` below) and append it to the body before rendering. YMMV.
 
-```css
-:root {
-  --red: #ff0000;
-  --large: 10px;
-}
+7. Add the `bootstrap.css` from [Bootswatch](http://bootswatch.com/paper/). At the request of a student, I've switched to the Paper theme. Choose your own, then select the `bootstrap.min.css` link from the navbar and copy and paste the code into your `/build/bootstrap.css` file. You can name this whatever you want. If you're using Sass or LESS, feel free to set this up differently. I'm going to use Myth, so I'm fine with plain CSS, and I'm OK, for now, with just loading it statically.
+8. Add some CSS from [myth.io](http://www.myth.io/). We'll use this later to test whether the Webpack `myth-loader` is working (and to demonstrate how to process CSS files in Webpack). Here we're creating a couple of variables, one for the color red and the other to set a "large" pixel value for padding. Then we use them to set the style for paragraphs.
 
-p {
-  color: var(--red);
-  padding: var(--large);
-}
-```
-
-- `npm i -D webpack-merge`
-- Install `babel` and presets:
-
-```sh
-npm i -D babel-core babel-loader babel-preset-es2015 babel-preset-react babel-preset-stage-1 babel-register
-```
-
-- Configure webpack:
-
-```js
-const path = require('path')
-const webpack = require('webpack')
-const merge = require('webpack-merge')
-
-const TARGET = process.env.npm_lifecycle_event
-
-process.env.BABEL_ENV = TARGET
-
-const PATHS = {
-  app: path.join(__dirname, 'app'),
-  build: path.join(__dirname, 'build')
-}
-
-const common = {
-  entry: {
-    app: PATHS.app
-  },
-  output: {
-    path: PATHS.build,
-    filename: 'app.js'
+  ```css
+  :root {
+    --red: #ff0000;
+    --large: 10px;
   }
-}
 
-if (TARGET === 'start' || !TARGET) {
-  module.exports = merge(common, {})
-}
+  p {
+    color: var(--red);
+    padding: var(--large);
+  }
+  ```
 
-if (TARGET === 'build') {
-  module.exports = merge(common, {})
-}
-```
+9. In his book [_Webpack and React_](https://survivejs.com/), Juha Lindstedt creates a small node module to merge configurations in Webpack. We'll use his technique as it is simple and keeps the configuration in one file.
 
-- We're going to need React:
+  ```sh
+  npm i -D webpack-merge
+  ```
 
-```sh
-npm i -S react react-dom
-```
+10. We're writing our code (most of it) in JavaScript 2015, also known as ECMAScript 6 or ES6 or ES2015. Fun, eh? We'll need to "transpile" this code back to ES5 for it to run in today's browsers. This is the primary reason we're using Webpack. The module we use to do the transpilation is [Babel](https://babeljs.io/). We'll need to install the dependencies we need (as devDependencies).
 
-- Add `/app/index.jsx`:
+  ```sh
+  npm i -D babel-core babel-loader babel-preset-es2015 \
+  babel-preset-react babel-preset-stage-1 babel-register
+  ```
+  1. [babel-core](https://github.com/babel/babel) provides the core logic of Babel
+  2. [babel-loader](https://github.com/babel/babel-loader) is a Webpack loader that runs Babel for us
+  3. [babel-preset-es2015](https://babeljs.io/docs/plugins/preset-es2015/) adds the plugins we need to transpile from ES6 to ES5
+  4. [babel-preset-react](https://babeljs.io/docs/plugins/preset-react/) adds the plugins we need to work with React
+  5. [babel-preset-stage-1](https://babeljs.io/docs/plugins/preset-stage-1/) adds the [Stage 1](https://babeljs.io/docs/plugins/#stage-x-experimental-presets-) plugins (we take a small risk with using features this far out)
+  6. [babel-register](https://babeljs.io/docs/usage/require/) adds the require hook, which will bind itself to node's require and automatically compile files on the fly. I mistakenly said this included the polyfill during the class, but it does not. My bad.
 
-```jsx
-import React from 'react'
-import { render } from 'react-dom'
+11. Configure webpack. I've renamed the config file to `webpack.config.babel.js` to take advantage of the `babel-register` require hook. Now we can use imports and other ES6 syntax in our config file. So yay.
 
-import './main.css'
+  ```js
+  // webpack.config.babel.js
+  import path from 'path'
+  import webpack from 'webpack'
+  import merge from 'webpack-merge'
 
-import App from './components/app.jsx'
+  const TARGET = process.env.npm_lifecycle_event
 
-const div = document.createElement('div')
+  process.env.BABEL_ENV = TARGET
 
-document.body.appendChild(div)
+  const PATHS = {
+    app: path.join(__dirname, 'app'),
+    build: path.join(__dirname, 'build')
+  }
 
-render(<App/>, div)
-```
-
-- Add `/app/components/app.jsx`:
-
-```jsx
-import React from 'react'
-
-const App = () => <p>Welcome to the App!</p>
-
-export default App
-
-```
-
-- Install eslint:
-
-```sh
-npm i -D eslint eslint-config-standard eslint-config-standard-jsx eslint-config-standard-react eslint-loader eslint-plugin-promise eslint-plugin-react eslint-plugin-standard
-```
-
-- Add `.eslintignore`:
-
-```
-build/
-```
-
-- Add `.eslintrc`:
-
-```
-{
-  "extends": [
-    "standard",
-    "standard-react"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "ecmaFeatures": {
-      "jsx": true
+  // See https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md
+  const common = {
+    entry: {
+      app: PATHS.app
     },
-    "sourceType": "module"
-  },
-  "env": {
-    "browser": true,
-    "node": true,
-    "mocha": true
-  },
-  "plugins": [
-    "react"
-  ]
-}
-```
-
-- While we're at it, add the `.editorconfig`:
-
-```
-# EditorConfig: http://EditorConfig.org
-
-root = true
-
-[*]
-indent_style = space
-indent_size = 2
-
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[*.md]
-trim_trailing_whitespace = false
-```
-
-- And add the `babel` settings to the `package.json` file:
-
-```json
-"babel": {
-  "presets": [
-    "es2015",
-    "stage-1",
-    "react"
-  ],
-  "env": {
-    "start": {
-      "presets": [
-        "react-hmre"
-      ]
+    output: {
+      path: PATHS.build,
+      filename: 'app.js'
     }
   }
-}
-```
 
-- Let's also get ready for testing. Add `/test/mocha.opts`:
+  const startConfig = {}
 
-```
---require ./test/setup
---full-trace
---compilers js:babel-core/register
-```
+  const buildConfig = {}
 
-- Add our `/test/setup.js` file:
+  const config = (TARGET === 'start' || !TARGET)
+    ? merge(common, startConfig)
+    : merge(common, buildConfig)
 
-```js
-import jsdom from 'jsdom'
+  export default config
+  ```
 
-const DEFAULT_HTML = '<html><body></body></html>'
+12. We're going to need React:
 
-global.document = jsdom.jsdom(DEFAULT_HTML)
-global.window = document.defaultView
-global.navigator = window.navigator
-```
+  ```sh
+  npm i -S react react-dom
+  ```
 
-- And we'll need to install all the dependencies we need:
+  1. [react](https://github.com/facebook/react) provides the basic React.js library
+  2. [react-dom](https://www.npmjs.com/package/react-dom) for working with the DOM
 
-```sh
-npm i -D chai chai-enzyme cheerio enzyme jsdom mocha react-addons-test-utils sinon
-```
+13. Now let's set up our React app. Add the following to `/app/index.jsx`.
 
-- Add the imports to the `/test/tests.js` file:
+  ```jsx
+  import React from 'react'
+  import { render } from 'react-dom'
 
-```js
-/* global describe it */
+  import './main.css'
 
-import React from 'react'
+  import App from './components/app.jsx'
 
-import chai, { expect } from 'chai'
-import chaiEnzyme from 'chai-enzyme'
-import sinon from 'sinon'
+  const div = document.createElement('div')
 
-chai.use(chaiEnzyme())
+  document.body.appendChild(div)
 
-import { mount, render, shallow } from 'enzyme'
+  render(<App/>, div)
+  ```
 
-import App from '../app/components/app.jsx'
+  We need React, of course. It also gives us the JSX capability (Extended JavaScript). As we're working with the DOM (in browserland), we'll need the ReactDOM, too. But we can just grab the one function we need: `render`.
 
-describe('<App/>', () => {
-  it ('displays the welcome message', () => {
-    const wrapper = render(<App/>)
+  We use the Webpack `style-loader` to load the styles in our `/app/main.css` file (processing them through the myth- and css-loaders first).
 
-    expect(wrapper.text()).to.contain('Welcome')
+  Then we import our App component, create a new HTML div element, append it to the body, and then render our App component into it.
+
+14. Now we can code our App component in `/app/components/app.jsx`.
+
+  ```jsx
+  import React from 'react'
+
+  const App = () => <p>Welcome to the App!</p>
+
+  export default App
+
+  ```
+
+  Keeping it simple to start. We import React, and build a *presentation* component using a simple ES6 fat arrow function to return our JSX. Then we export it for use in `/app/index.jsx` and elsewhere.
+
+15. We'll want some help with our syntax, so let's install a linter. ESLint is the current favorite. We'll add some plugins and a loader to make it work with Webpack.
+
+  ```sh
+  npm i -D eslint eslint-loader \
+  eslint-config-standard eslint-config-standard-jsx \
+  eslint-config-standard-react eslint-plugin-react \
+  eslint-plugin-promise eslint-plugin-standard
+  ```
+
+  1. [eslint](http://eslint.org/) checks our JS code to make sure it's correct
+  2. [eslint-loader](https://github.com/MoOx/eslint-loader) let's us use ESLint in Webpack
+  3. [eslint-config-standard](https://github.com/feross/eslint-config-standard) configures ESLint to use the [standard.js](http://standardjs.com/) style guide&mdash;a nice way to remain consistent
+  4. [eslint-config-standard-jsx](https://github.com/feross/eslint-config-standard-jsx) adds Standard.js JSX support
+  5. [eslint-config-standard-react](https://github.com/feross/eslint-config-standard-react) adds Standard.js React support
+  6. [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) adds React-specific linting rules
+  7. [eslint-plugin-promise](https://github.com/xjamundx/eslint-plugin-promise) enforces best practices for JS promises
+  8. [eslint-plugin-standard](https://github.com/xjamundx/eslint-plugin-standard) adds some extra rules needed for standard.js
+
+16. We don't want to lint everything twice, so let's add our `build` folder to `.eslintignore`.
+
+  ```
+  build/
+  ```
+
+17. We'll also configure ESLint in our `.eslintrc` file. There are a [great many options](http://eslint.org/docs/user-guide/configuring), of course.
+
+  ```
+  {
+    "extends": [
+      "standard",
+      "standard-react"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "sourceType": "module"
+    },
+    "env": {
+      "browser": true,
+      "node": true,
+      "mocha": true
+    },
+    "plugins": [
+      "react"
+    ]
+  }
+  ```
+
+18. While we're at it, we can use the `.editorconfig` to [configure our text editors](http://EditorConfig.org) so all our developers are using the same format. These are pretty self-explanatory.
+
+  ```
+  # EditorConfig: http://EditorConfig.org
+
+  root = true
+
+  [*]
+  indent_style = space
+  indent_size = 2
+
+  end_of_line = lf
+  charset = utf-8
+  trim_trailing_whitespace = true
+  insert_final_newline = true
+
+  [*.md]
+  trim_trailing_whitespace = false
+  ```
+
+19. We can use a `.babelrc` file to configure Babel, or we can just add our `babel` settings to the `package.json` file. See also the [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre) for details.
+
+  ```json
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-1",
+      "react"
+    ],
+    "env": {
+      "start": {
+        "presets": [
+          "react-hmre"
+        ]
+      }
+    }
+  }
+  ```
+
+20. Time to set up our tests and add a first specification. We can use `mocha.opts` (in `/test/mocha.opts`) to add arguments that would otherwise need to be included on the command line. Here we require the `setup.js` file before the specs are run, we turn on "full trace" capability, and we tell it to use `babel-register` to transpile the specs from ES6 to ES5 before running them. That allows us to use JavaScript 2015 in our tests. Nice!
+
+  ```
+  --require ./test/setup
+  --full-trace
+  --compilers js:babel-core/register
+  ```
+
+21. Before we run the tests, we want to set up our environment. We'll use [jsdom](https://github.com/tmpvar/jsdom), which is a "JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js". We'll add the following to our `/test/setup.js` file. I've swiped the [latest recommendation](https://github.com/airbnb/enzyme/blob/master/docs/guides/jsdom.md#using-enzyme-with-jsdom) and updated it slightly to use the spread operator and more ES6:
+
+  ```js
+  import { jsdom } from 'jsdom'
+
+  let exposedProperties = [
+    'window',
+    'navigator',
+    'document'
+  ]
+
+  global.document = jsdom('')
+  global.window = document.defaultView
+
+  // Loop through the defaultView adding properties to exposedProperties
+  // and assigning the global property
+  Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+      exposedProperties = [ ...exposedProperties, property ]
+      global[property] = document.defaultView[property]
+    }
   })
-})
-```
 
-- Add the npm scripts:
+  global.navigator = {
+    userAgent: 'node.js'
+  }
+  ```
 
-```js
-"build": "webpack",
-"lint": "eslint . --ext .js --ext .jsx --cache || true",
-"test": "mocha --opts ./test/mocha.opts test/tests.js"
-```
+  This creates the most basic HTML DOM and then sets the global variables for the `document`, the `window`, the `navigator`, etc.
 
-- Set up HMR:
+22. And we'll need to install all the dependencies we need:
 
-```sh
-npm i -D webpack-dev-server
-```
+  ```sh
+  npm i -D chai chai-enzyme cheerio enzyme jsdom mocha react-addons-test-utils sinon
+  ```
 
-- Add it to our start script:
+  1. [chai](http://chaijs.com/) is a [BDD/TDD](https://www.youtube.com/watch?v=mT8QDNNhExg) assertion library for node and the browser that can be delightfully paired with any javascript testing framework
+  2. [chai-enzyme](https://github.com/producthunt/chai-enzyme) adds Chai.js assertions and convenience functions for testing React components with Enzyme
+  3. [cheerio](https://github.com/cheeriojs/cheerio) is a fast, flexible, and lean implementation of core jQuery designed specifically for the server and is used by Enzyme for DOM traversal
+  4. [enzyme](https://github.com/airbnb/enzyme) is AirBnB's JavaScript testing utilities for React and is easier to use than the Facebook utilities
+  5. [jsdom](https://github.com/tmpvar/jsdom) is a JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js
+  6. [mocha](https://mochajs.org/) is a feature-rich JavaScript test framework running on Node.js and in the browser
+  7. [react-addons-test-utils](https://facebook.github.io/react/docs/test-utils.html) are the Facebook React test utilities
+  8. [sinon](http://sinonjs.org/) provides standalone test spies, stubs and mocks for JavaScript
 
-```js
-"start": "webpack-dev-server"
-```
+23. Now we can set up our specifications and add them to the `/test/tests.js` file. The comment at the top prevents ESLint from complaining that `describe` and `it` are not defined in the file.
 
-- Add it to our webpack configuration:
+  ```js
+  /* global describe it */
 
-```js
-if (TARGET === 'start' || !TARGET) {
-  module.exports = merge(common, {
+  import React from 'react'
+
+  import chai, { expect } from 'chai'
+  import chaiEnzyme from 'chai-enzyme'
+  import sinon from 'sinon'
+
+  chai.use(chaiEnzyme())
+
+  import { mount, render, shallow } from 'enzyme'
+
+  import App from '../app/components/app.jsx'
+
+  describe('<App/>', () => {
+    it ('displays the welcome message', () => {
+      const wrapper = render(<App/>)
+
+      expect(wrapper.text()).to.contain('Welcome')
+    })
+  })
+  ```
+
+24. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks:
+
+  ```js
+  "build": "webpack",
+  "lint": "eslint . --ext .js --ext .jsx --cache || true",
+  "test": "mocha --opts ./test/mocha.opts test/tests.js"
+  ```
+
+25. Finally, let's set up the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
+
+  ```sh
+  npm i -D webpack-dev-server
+  ```
+
+26. Then we'll add a `start` script:
+
+  ```js
+  "start": "webpack-dev-server"
+  ```
+
+27. And we'll need to update our `webpack.config.babel.js` file to use the module.
+
+  ```js
+  const startConfig = {
     devtool: 'eval-source-map',
     devServer: {
       contentBase: PATHS.build,
@@ -314,9 +381,8 @@ if (TARGET === 'start' || !TARGET) {
     plugins: [
       new webpack.HotModuleReplacementPlugin()
     ]
-  })
-}
-```
+  }
+  ```
 
 - We'll need to configure babel as well. Add the extensions to resolve:
 

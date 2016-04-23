@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 
 import { Grid } from 'react-bootstrap'
 
@@ -10,5 +10,9 @@ const App = ({ children }) => <div>
     {children}
   </Grid>
 </div>
+
+App.propTypes = {
+  children: PropTypes.object.isRequired
+}
 
 export default App

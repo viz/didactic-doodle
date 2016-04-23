@@ -51,7 +51,7 @@ describe('<App/>', () => {
   // includes the Header - shallow means the Header's render method is not
   // called
   it('includes the Header', () => {
-    const wrapper = shallow(<App/>)
+    const wrapper = shallow(<App><p/></App>)
 
     // We imported expect from the chai library
     // to and contain are provided by chai and chai-enzyme
