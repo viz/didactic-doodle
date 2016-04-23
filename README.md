@@ -4,8 +4,8 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
 
 ## Instructions
 
-1. Create the git repo and clone it
-2. Add or update the `.gitignore` file
+1. Create a git repo for your project and clone it to your working folder.
+2. Add or update the `.gitignore` file.
 
   ```
   .DS_Store
@@ -13,9 +13,9 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   *.log
   ```
 
-3. Run `npm init -y` then update it, or leave off the `-y` and answer the questions at the command line
-4. Install webpack locally as a devDependency with `npm i -D webpack`
-5. Create the folder and file structure
+3. Run `npm init -y` then update the `package.json` file, or leave off the `-y` and answer the questions at the command line.
+4. Install webpack locally as a development dependency with `npm i -D webpack` (`-D` is the same as `--save-dev`).
+5. Create the folders and files we'll need:
 
   ```sh
   mkdir app
@@ -40,7 +40,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
 
   Some developers like to use `PascalCase` or `camelCase` for the file names. As not all filesystems are case sensitive, I'm not a huge fan of that practice (though I've used it occasionally). I prefer `train-case`. The important point is to be *consistent*. And if your team has an established style guide, then follow it precisely. Development is a team effort; express your individuality somewhere else.
 
-6. Add the HTML in `/build/index.html:
+6. Add the HTML in `/build/index.html`.
 
   ```html
   <!DOCTYPE html>
