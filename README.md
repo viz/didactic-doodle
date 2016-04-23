@@ -100,7 +100,6 @@
   ```js
   // webpack.config.babel.js
   import path from 'path'
-  import webpack from 'webpack'
   import merge from 'webpack-merge'
 
   const TARGET = process.env.npm_lifecycle_event
@@ -352,7 +351,13 @@
   npm i -D webpack-dev-server
   ```
 
-25. And we'll need to update our `webpack.config.babel.js` file to use the module.
+25. Let's import webpack into our config so we can work with plugins:
+
+  ```js
+  import webpack from 'webpack'
+  ```
+
+26. And we'll need to update our `webpack.config.babel.js` file to use the module.
 
   ```js
   const startConfig = {
@@ -373,7 +378,7 @@
   }
   ```
 
-26. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
+27. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
 
   ```js
   resolve: {
@@ -381,7 +386,7 @@
   }
   ```
 
-27. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
+28. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
 
   ```js
   module: {
@@ -402,7 +407,7 @@
   }
   ```
 
-28. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
+29. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
 
   ```js
   const stylelint = require('stylelint')
@@ -442,7 +447,7 @@
   }
   ```
 
-29. We'd better add the loader and lint dependencies:
+30. We'd better add the loader and lint dependencies:
 
   ```sh
   npm i -D style-loader css-loader myth-loader stylelint postcss-loader
@@ -454,7 +459,7 @@
   4. [stylelint]()
   5. [postcss-loader]()
 
-30. We need the `hmre` plugin, too.
+31. We need the `hmre` plugin, too.
 
   ```sh
   npm i -D babel-preset-react-hmre
@@ -462,7 +467,7 @@
 
   [babel-preset-react-hmre]()
 
-31. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
+32. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
 
   ```js
   "build": "webpack",
