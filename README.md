@@ -46,7 +46,7 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <title>Setup</title>
+      <title>Didactic Doodle</title>
 
       <link rel="icon" href="/favicon.png">
 
@@ -253,8 +253,8 @@
   "babel": {
     "presets": [
       "es2015",
-      "stage-1",
-      "react"
+      "react",
+      "stage-1"
     ],
     "env": {
       "start": {
@@ -344,19 +344,32 @@
   })
   ```
 
-24. We also need the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
+  See the [documentation](https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md) for more information.
+
+24. Enzyme requires that we add some configuration to our `webpack.config.babel.js` file to work well with React 0.15. Add the following to the `common` config object:
+
+  ```js
+  externals: {
+    'jsdom': 'window',
+    'react/lib/ReactContext': 'window',
+    'react/lib/ExecutionEnvironment': true,
+    'react/addons': true
+  },
+  ```
+
+25. We also need the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
 
   ```sh
   npm i -D webpack-dev-server
   ```
 
-25. Let's import webpack into our config so we can work with plugins:
+26. Let's import webpack into our config so we can work with plugins:
 
   ```js
   import webpack from 'webpack'
   ```
 
-26. And we'll need to update our `webpack.config.babel.js` file to use the module.
+27. And we'll need to update our `webpack.config.babel.js` file to use the module.
 
   ```js
   const startConfig = {
@@ -377,7 +390,7 @@
   }
   ```
 
-27. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
+28. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
 
   ```js
   resolve: {
@@ -385,7 +398,7 @@
   }
   ```
 
-28. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
+29. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
 
   ```js
   module: {
@@ -406,7 +419,11 @@
   }
   ```
 
-29. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better. Add the import to the imports at the top of the file.
+  Preloaders run first, then loaders. Each load step can use one or more loaders. The `test` key provides a regular expression to test file names against. This regular expression matches all filenames that *end* with either `.js` or `.jsx`. In the preload stage, the `eslint-loader` is run on all files in the `PATHS.app` path ending with `.js` or `.jsx`. (You can leave off the `-loader` part.)
+
+  In the loading phase, the `babel-loader` will be run against those same files, and we've told it to cache the results so that we don't rerun the babel compiler needlessly.
+
+30. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better. Add the import to the imports at the top of the file.
 
   ```js
   import stylelint from 'stylelint'
@@ -446,7 +463,11 @@
   }
   ```
 
-30. We'd better add the loader and lint dependencies:
+  These work the same way. The test regex matches filenames ending in `.css` in the `PATHS.app` path. Then it applies the loader(s). In the preload stage, `postcss` is used to run the `stylelint`. This checks our CSS for errors. We configure `postcss` in the `postcss` function below, passing a rule to `stylelint` (as an example) to warn us of any hex color values not using lowercase letters.
+
+  In the load step, three loaders are applied from right to left. First the `myth-loader` converts future CSS syntax into current syntax. Then the `css-loader` pulls in any imports, etc. and outputs the final CSS. Finally, the `style-loader` inserts the CSS into our bundled code.
+
+31. We'll need to add the loader and lint dependencies:
 
   ```sh
   npm i -D style-loader css-loader myth-loader stylelint postcss-loader
@@ -458,7 +479,7 @@
   4. [stylelint]()
   5. [postcss-loader]()
 
-31. We need the `hmre` plugin, too.
+32. We need the `hmre` plugin, too.
 
   ```sh
   npm i -D babel-preset-react-hmre
@@ -466,7 +487,7 @@
 
   [babel-preset-react-hmre]()
 
-32. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
+33. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
 
   ```js
   import webpack from 'webpack'
@@ -555,7 +576,7 @@
   export default config
   ```
 
-33. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
+34. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
 
   ```js
   "build": "webpack",
@@ -568,7 +589,7 @@
   - Use `npm run lint` to lint the source code and report warnings and errors
   - Use `npm test` to run the specifications in `/test/tests.js`
 
-34. Now we can run the Webpack Dev Server.
+35. Now we can run the Webpack Dev Server.
 
   ```sh
   npm start
@@ -576,13 +597,13 @@
 
   You should be able to see the app at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it.
 
-35. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
+36. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
 
   ```sh
   npm i -S react-bootstrap
   ```
 
-36. We can add a header. Create `/app/components/header.jsx` and add:
+37. We can add a header. Create `/app/components/header.jsx` and add:
 
   ```jsx
   import React from 'react'
@@ -606,7 +627,7 @@
 
   Whoa! Where did all this come from? Simple. I just went to the react-bootstrap [Navbar Basic Example](https://react-bootstrap.github.io/components.html#navbars-basic), clicked on "show code", and swiped the JSX code. Then I dropped the dropdown (heh) and modified the code as necessary. ESLint warned me which imports I was missing so I added them up top. The links won't work, but we have a navbar at least and that's a start. We got a lot of benefit for just a few seconds work.
 
-37. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
+38. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
 
   ```jsx
   import React from 'react'

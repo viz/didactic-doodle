@@ -2,7 +2,6 @@
   "name": "didactic-doodle",
   "version": "1.0.0",
   "description": "React redux",
-  "main": "index.js",
   "scripts": {
     "build": "webpack",
     "start": "webpack-dev-server",

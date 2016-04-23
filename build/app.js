@@ -70,7 +70,17 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	// Import our components
+
+
+	// We'll use destructuring assignment to grab only what we need
+	// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+
+
 	var div = document.createElement('div');
+
+	// We can import CSS directly using the webpack style-loader
+
 
 	document.body.appendChild(div);
 
