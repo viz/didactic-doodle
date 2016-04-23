@@ -480,7 +480,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   1. [style-loader](https://github.com/webpack/style-loader) adds the CSS to the exported DOM in a `<style>` element
   2. [css-loader](https://github.com/webpack/css-loader) loads CSS file(s) with resolved imports and returns CSS code
   3. [myth-loader](https://github.com/besarthoxhaj/myth-loader) converts future CSS syntax to current syntax with [myth.io](http://www.myth.io/)
-  4. [stylelint](https://github.com/stylelint/stylelint): a mighty, modern [CSS linter](http://stylelint.io/)
+  4. [stylelint](https://github.com/stylelint/stylelint) is a "mighty, modern" [CSS linter](http://stylelint.io/)
   5. [postcss-loader](https://github.com/postcss/postcss-loader) postprocesses your CSS with [PostCSS](http://postcss.org/) plugins (we could also have used the [stylelint-loader](https://www.npmjs.com/package/stylelint-loader) directly, but I thought it would be nice to see some postcss as well)
 
 32. We need the `hmre` plugin, too.
@@ -489,7 +489,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   npm i -D babel-preset-react-hmre
   ```
 
-  [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre) This preset will configure Babel 6 for [HMR](https://github.com/gaearon/react-transform-hmr) and friends. It is recommended that this preset only be configured for your development builds.
+  [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre): This preset will configure Babel 6 for [HMR](https://github.com/gaearon/react-transform-hmr) and friends. It is recommended that this preset only be configured for your development builds.
 
 33. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
 
@@ -597,6 +597,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
 
   - Use `npm run build` to compile and bundle the source code into `/build/app.js`
   - Use `npm run lint` to lint the source code and report warnings and errors
+  - Use `npm start` to start the app with `webpack-dev-server`
   - Use `npm test` to run the specifications in `/test/tests.js`
 
 35. Now we can run the Webpack Dev Server.
@@ -605,7 +606,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   npm start
   ```
 
-  You should be able to see the app at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it.
+  You should be able to see the app (just a line in red that says, "Welcome to the App!") at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it. Change "App!" to "Flapp!" or something like that, save the file, and check that the page has reloaded with the new text.
 
 36. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
 
@@ -654,134 +655,189 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   export default App
   ```
 
-- Take a look at our app now and we should see a nice navbar at the top
-- Now, let's add some pages:
+  Take a look at our app now and you should see a nice navbar at the top. That was easy!
 
-```jsx
-// /app/components/home.jsx
-import React from 'react'
+39. Now, let's add some pages:
 
-import { Col, Row } from 'react-bootstrap'
+  ```jsx
+  // /app/components/home.jsx
+  import React from 'react'
 
-const Home = () => <Row>
-  <Col xs={12}>
-    <h1>Home</h1>
-  </Col>
-</Row>
+  import { Col, Row } from 'react-bootstrap'
 
-export default Home
-```
+  const Home = () => <Row>
+    <Col xs={12}>
+      <h1>Home</h1>
+    </Col>
+  </Row>
 
-```jsx
-// /app/components/about.jsx
-import React from 'react'
+  export default Home
+  ```
 
-import { Col, Row } from 'react-bootstrap'
+  ```jsx
+  // /app/components/about.jsx
+  import React from 'react'
 
-const About = () => <Row>
-  <Col xs={12}>
-    <h1>About</h1>
-  </Col>
-</Row>
+  import { Col, Row } from 'react-bootstrap'
 
-export default About
-```
+  const About = () => <Row>
+    <Col xs={12}>
+      <h1>About</h1>
+    </Col>
+  </Row>
 
-- Then we'll add in `react-router` and some routes and links (we'll also need `react-router-bootstrap`):
+  export default About
+  ```
 
-```sh
-npm i -S react-router react-router-bootstrap
-```
+40. We're going to need some kind of router to allow us to navigate to our new pages. To begin, let's add `react-router` (we'll also need `react-router-bootstrap` to help integrate `react-router` and `react-bootstrap`).
 
-- Now we can update our `Header`:
+  ```sh
+  npm i -S react-router react-router-bootstrap
+  ```
 
-```jsx
-import React from 'react'
+41. Now we can update our `Header` to make the links work. We'll need to update the regular links to make them work with `react-router`. We can do this by wrapping them in the appropriate containers provided by `react-router-bootstrap`:
 
-import {
-  Nav,
-  Navbar,
-  NavItem
-} from 'react-bootstrap'
+  ```jsx
+  import React from 'react'
 
-import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap'
+  import { Nav, Navbar, NavItem } from 'react-bootstrap'
 
-const Header = () => <Navbar>
-  <Navbar.Header>
-    <Navbar.Brand>
-      <IndexLinkContainer to={{ pathname: '/' }}>
-        <a>Setup</a>
-      </IndexLinkContainer>
-    </Navbar.Brand>
-    <Navbar.Toggle />
-  </Navbar.Header>
-  <Navbar.Collapse>
-    <Nav>
-      <IndexLinkContainer to={{ pathname: '/' }}>
-        <NavItem eventKey={1} href='#'>Home</NavItem>
-      </IndexLinkContainer>
-      <LinkContainer to={{ pathname: '/about' }}>
-        <NavItem eventKey={2} href='#'>About</NavItem>
-      </LinkContainer>
-    </Nav>
-  </Navbar.Collapse>
-</Navbar>
+  import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap'
 
-export default Header
-```
+  const Header = () => <Navbar>
+    <Navbar.Header>
+      <Navbar.Brand>
+        <IndexLinkContainer to={{ pathname: '/' }}>
+          <a>Setup</a>
+        </IndexLinkContainer>
+      </Navbar.Brand>
+      <Navbar.Toggle />
+    </Navbar.Header>
+    <Navbar.Collapse>
+      <Nav>
+        <IndexLinkContainer to={{ pathname: '/' }}>
+          <NavItem eventKey={1} href='#'>Home</NavItem>
+        </IndexLinkContainer>
+        <LinkContainer to={{ pathname: '/about' }}>
+          <NavItem eventKey={2} href='#'>About</NavItem>
+        </LinkContainer>
+      </Nav>
+    </Navbar.Collapse>
+  </Navbar>
 
-- And add our routes to `/app/index.jsx`:
+  export default Header
+  ```
 
-```jsx
-import React from 'react'
-import { render } from 'react-dom'
-import { browserHistory, IndexRoute, Route, Router } from 'react-router'
+42. We'll need to update `/app/index.jsx` to add our routes.
 
-import './main.css'
+  ```jsx
+  import React from 'react'
+  import { render } from 'react-dom'
+  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
 
-import App from './components/app.jsx'
-import Home from './components/home.jsx'
-import About from './components/about.jsx'
+  import './main.css'
 
-const div = document.createElement('div')
+  import App from './components/app.jsx'
+  import Home from './components/home.jsx'
+  import About from './components/about.jsx'
 
-document.body.appendChild(div)
+  const div = document.createElement('div')
 
-render(<Router history={browserHistory}>
-  <Route path='/' component={App}>
-    <IndexRoute component={Home}/>
-    <Route path='about' component={About}/>
-  </Route>
-</Router>, div)
-```
+  document.body.appendChild(div)
 
-- We should be able to switch between pages; let's add redux:
+  render(<Router history={browserHistory}>
+    <Route path='/' component={App}>
+      <IndexRoute component={Home}/>
+      <Route path='about' component={About}/>
+    </Route>
+  </Router>, div)
+  ```
 
-```sh
-npm i -S redux react-redux react-router-redux
-```
+  1. `browserHistory` allows us to use pushState to control the browser history (we'll need to take this into account on the back end so that our routes don't get 404s if the user reloads a page)
+  2. `IndexRoute` is used for the default page
+  3. `Route` adds a route, and
+  4. `Router` collects the routes and provides the `react-router` functionality
 
-- We'll add a simple reducer that takes a single value in increments or decrements it in `app/reducer.js`:
+  This should be pretty easy to understand if you've worked with routing before.
 
-```js
-const INCREMENT = 'INCREMENT'
-const DECREMENT = 'DECREMENT'
+43. Now we should be able to switch between pages, but if we try it we won't see any difference. That's because the individual pages (home or about) are being passed to `App` as children, but our current `App` doesn't do anything with them. So let's update our `/app/components/app.jsx` file accordingly.
 
-const reducer = (state = 0, action) => {
-  switch (action.type) {
-    case INCREMENT:
-      return state + 1
-    case DECREMENT:
-      return state - 1
-    default:
-      return state
+  ```js
+  import React, { PropTypes } from 'react'
+
+  import { Grid } from 'react-bootstrap'
+
+  import Header from './header.jsx'
+
+  const App = ({ children }) => <div>
+    <Header/>
+    <Grid>{children}</Grid>
+  </div>
+
+  App.propTypes = {
+    children: PropTypes.object.isRequired
   }
-}
 
-export default {
-  reducer
-}
-```
+  export default App
+  ```
+
+  We import the PropTypes from React so we can specify the type of `children` (an object). The first argument to our `App` function is the `props`. We use destructuring assignment here to pull out the `children` prop, then we insert the value of `children` into the `<Grid>` component. Finally, we set the `propTypes` for the `App` component and indicate that the `children` prop is required.
+
+  If you run the app and try the links now, you should see the page change. We now have a single-page app.
+
+44. We've broken our App spec now. Let's rewrite it to check that the Header is present instead:
+
+  ```js
+  /*global describe it */
+
+  import React from 'react'
+
+  import chai, { expect } from 'chai'
+  import chaiEnzyme from 'chai-enzyme'
+
+  chai.use(chaiEnzyme())
+
+  import { shallow } from 'enzyme'
+
+  import App from '../app/components/app.jsx'
+  import Header from '../app/components/header.jsx'
+
+  describe('<App/>', () => {
+    it('includes the <Header/>', () => {
+      const wrapper = shallow(<App><p/></App>)
+
+      expect(wrapper).to.contain(<Header/>)
+    })
+  })
+  ```
+
+44. Let's add redux to manage state, and we'll use `react-redux-router` to store our current route state in the redux store as well.
+
+  ```sh
+  npm i -S redux react-redux react-router-redux
+  ```
+
+45. Just to give us something to play with, we'll add a simple reducer that takes a single value and increments or decrements it. Create `app/reducer.js` and add:
+
+  ```js
+  const INCREMENT = 'INCREMENT'
+  const DECREMENT = 'DECREMENT'
+
+  const reducer = (state = 0, action) => {
+    switch (action.type) {
+      case INCREMENT:
+        return state + 1
+      case DECREMENT:
+        return state - 1
+      default:
+        return state
+    }
+  }
+
+  export default {
+    reducer
+  }
+  ```
 
 - We'll use a Provider to pass this state into the context
 - We'll also keep our route state in the store using `react-router-redux`
