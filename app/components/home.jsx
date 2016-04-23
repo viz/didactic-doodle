@@ -4,7 +4,7 @@ import { Col, Row } from 'react-bootstrap'
 
 const Home = () => <Row>
   <Col xs={12}>
-    <p>Welcome to the App!</p>
+    <h1>Home</h1>
   </Col>
 </Row>
 

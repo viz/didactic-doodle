@@ -811,6 +811,8 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   })
   ```
 
+  We've switched from `render` to `shallow`. We need to pass a child to `<App>` (it's expecting a route, but we're doing a shallow render here and so we'll just send an empty paragraph). Finally, we check that the shallowly rendered `<App/>` component includes a `<Header/>`. If you run it with `npm test` it should work.
+
 44. Let's add redux to manage state, and we'll use `react-redux-router` to store our current route state in the redux store as well.
 
   ```sh
@@ -823,125 +825,122 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   const INCREMENT = 'INCREMENT'
   const DECREMENT = 'DECREMENT'
 
-  const reducer = (state = 0, action) => {
+  const reducer = (state = { count: 0 }, action) => {
     switch (action.type) {
       case INCREMENT:
-        return state + 1
+        return {
+          ...state,
+          count: state.count + 1
+        }
       case DECREMENT:
-        return state - 1
+        return {
+          ...state,
+          count: state.count - 1
+        }
       default:
         return state
     }
   }
 
-  export default {
-    reducer
-  }
+  export default reducer
   ```
 
-- We'll use a Provider to pass this state into the context
-- We'll also keep our route state in the store using `react-router-redux`
+  Our reducer takes the current state and an action and returns a new state. Here we have two action types: increment and decrement, which do exactly what you'd expect. If some other action is passed (or none), we return the state unchanged. Our state is just an object with a single key, `count` and an integer value, defaulting to 0.
 
-```js
-import React from 'react'
-import { render } from 'react-dom'
-import { combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux'
-import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
+  Later we'll add action creators, containers, etc., but for now this is enough to get started.
 
-import * as reducers from './reducers.js'
+46. In our top level `/app/index.jsx` file, we'll create the store from our reducer. Then we'll use a `Provider` wrapper (which we get from `react-redux`) to pass the store into the React context. We can then pull it out of the context where we need it.
 
-const store = createStore(
-  combineReducers({
-    ...reducers,
-    routing: routerReducer
-  })
-)
+  ```js
+  import React from 'react'
+  import { render } from 'react-dom'
+  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
+  import { createStore } from 'redux'
+  import { Provider } from 'react-redux'
 
-const history = syncHistoryWithStore(browserHistory, store)
+  import './main.css'
 
-import './main.css'
+  import App from './components/app.jsx'
+  import Home from './components/home.jsx'
+  import About from './components/about.jsx'
 
-import App from './components/app.jsx'
-import Home from './components/home.jsx'
-import About from './components/about.jsx'
+  import reducer from './reducer.js'
 
-const div = document.createElement('div')
+  const store = createStore(reducer)
 
-document.body.appendChild(div)
+  const div = document.createElement('div')
 
-render(<Provider store={store}>
-  <Router history={history}>
-    <Route path='/' component={App}>
-      <IndexRoute component={Home}/>
-      <Route path='about' component={About}/>
-    </Route>
-  </Router>
-</Provider>, div)
-```
+  document.body.appendChild(div)
 
-- Now let's add the Redux tools, `redux-devtools`, `redux-devtools-dock-monitor`, and `redux-devtools-log-monitor`:
-
-```sh
-npm i -D redux-devtools redux-devtools-dock-monitor redux-devtools-log-monitor
-```
-
-- Then update our `/app/index.jsx` file to this:
-
-```jsx
-import { createDevTools } from 'redux-devtools'
-import LogMonitor from 'redux-devtools-log-monitor'
-import DockMonitor from 'redux-devtools-dock-monitor'
-
-import React from 'react'
-import { render } from 'react-dom'
-import { combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux'
-import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
-
-import * as reducers from './reducers.js'
-
-const DevTools = createDevTools(
-  <DockMonitor toggleVisibilityKey='ctrl-h' changePositionKey='ctrl-q'>
-    <LogMonitor theme='tomorrow' preserveScrollTop={false} />
-  </DockMonitor>
-)
-
-const reducer = combineReducers({
-  ...reducers,
-  routing: routerReducer
-})
-
-const store = createStore(
-  reducer,
-  DevTools.instrument()
-)
-
-const history = syncHistoryWithStore(browserHistory, store)
-
-import './main.css'
-
-import App from './components/app.jsx'
-import Home from './components/home.jsx'
-import About from './components/about.jsx'
-
-const div = document.createElement('div')
-
-document.body.appendChild(div)
-
-render(<Provider store={store}>
-  <div>
-    <Router history={history}>
+  render(<Provider store={store}>
+    <Router history={browserHistory}>
       <Route path='/' component={App}>
         <IndexRoute component={Home}/>
         <Route path='about' component={About}/>
       </Route>
     </Router>
-    <DevTools/>
-  </div>
-</Provider>, div)
-```
+  </Provider>, div)
+  ```
 
-- Now we should be able to see the dock.
+47. We'll want to see what's going on with our store, so let's add the Redux tools, `redux-devtools`, `redux-devtools-dock-monitor`, and `redux-devtools-log-monitor`:
+
+  ```sh
+  npm i -D redux-devtools redux-devtools-dock-monitor redux-devtools-log-monitor
+  ```
+
+  1. [redux-devtools](https://github.com/gaearon/redux-devtools) with hot reloading, action replay, and [customizable UI](http://youtube.com/watch?v=xsSnOQynTHs)
+  2. [redux-devtools-dock-monitor](https://github.com/gaearon/redux-devtools-dock-monitor) a resizable and movable dock for Redux DevTools monitors
+  3. [redux-devtools-log-monitor](https://github.com/gaearon/redux-devtools-log-monitor) the default monitor for Redux DevTools with a tree view
+
+48. We'll add them to our `/app/index.jsx` file thus:
+
+  ```jsx
+  import { createDevTools } from 'redux-devtools'
+  import LogMonitor from 'redux-devtools-log-monitor'
+  import DockMonitor from 'redux-devtools-dock-monitor'
+
+  import React from 'react'
+  import { render } from 'react-dom'
+  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
+  import { createStore } from 'redux'
+  import { Provider } from 'react-redux'
+
+  import './main.css'
+
+  import App from './components/app.jsx'
+  import Home from './components/home.jsx'
+  import About from './components/about.jsx'
+
+  import reducer from './reducer.js'
+
+  const DevTools = createDevTools(
+    <DockMonitor toggleVisibilityKey='ctrl-h' changePositionKey='ctrl-q'>
+      <LogMonitor theme='tomorrow' preserveScrollTop={false} />
+    </DockMonitor>
+  )
+
+  const store = createStore(
+    reducer,
+    DevTools.instrument()
+  )
+
+  const div = document.createElement('div')
+
+  document.body.appendChild(div)
+
+  render(<Provider store={store}>
+    <div>
+      <Router history={browserHistory}>
+        <Route path='/' component={App}>
+          <IndexRoute component={Home}/>
+          <Route path='about' component={About}/>
+        </Route>
+      </Router>
+      <DevTools/>
+    </div>
+  </Provider>, div)
+  ```
+
+  Now we should be able to see the dock. Try it. You can hide and show the dock with Control-h. You can change where it appears on the screen with Control-q.
+
+

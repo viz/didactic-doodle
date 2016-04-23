@@ -35,6 +35,12 @@ const common = {
     path: PATHS.build,
     filename: 'app.js'  // bundle the transpiled output into this file in the above folder
   },
+  externals: { // See https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md
+    'jsdom': 'window',
+    'react/lib/ReactContext': 'window',
+    'react/lib/ExecutionEnvironment': true,
+    'react/addons': true
+  },
   module: {
     preLoaders: [
       {
@@ -60,12 +66,6 @@ const common = {
         include: PATHS.app                    // Look in this path
       }
     ]
-  },
-  externals: { // See https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md
-    'jsdom': 'window',
-    'react/lib/ReactContext': 'window',
-    'react/lib/ExecutionEnvironment': true,
-    'react/addons': true
   },
   postcss: function () {
     return [stylelint({

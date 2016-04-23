@@ -4,6 +4,7 @@
   "description": "React redux",
   "scripts": {
     "build": "webpack",
+    "lint": "eslint . --ext .js --ext .jsx --cache || true",
     "start": "webpack-dev-server",
     "test": "mocha --opts ./test/mocha.opts test/tests.js"
   },
@@ -63,14 +64,14 @@
     "redux-devtools-log-monitor": "^1.0.11",
     "sinon": "^1.17.3",
     "style-loader": "^0.13.1",
-    "stylelint": "^6.0.3",
+    "stylelint": "^6.1.0",
     "webpack": "^1.13.0",
     "webpack-dev-server": "^1.14.1",
     "webpack-merge": "^0.12.0"
   },
   "dependencies": {
     "react": "^15.0.1",
-    "react-bootstrap": "^0.29.1",
+    "react-bootstrap": "^0.29.2",
     "react-dom": "^15.0.1",
     "react-redux": "^4.4.5",
     "react-router": "^2.3.0",

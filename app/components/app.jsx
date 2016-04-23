@@ -6,9 +6,7 @@ import Header from './header.jsx'
 
 const App = ({ children }) => <div>
   <Header/>
-  <Grid>
-    {children}
-  </Grid>
+  <Grid>{children}</Grid>
 </div>
 
 App.propTypes = {
