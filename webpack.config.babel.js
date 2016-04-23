@@ -1,5 +1,5 @@
-import path from 'path'            // For working with filesystem paths
 import webpack from 'webpack'      // Required to make this work
+import path from 'path'            // For working with filesystem paths
 import merge from 'webpack-merge'  // Merges configs: http://survivejs.com/webpack/developing-with-webpack/splitting-configuration/
 import stylelint from 'stylelint'  // Used to lint CSS
 

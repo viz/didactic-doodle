@@ -27,13 +27,16 @@
   touch test/setup.js
   touch test/tests.js
   touch webpack.config.babel.js
+  touch .eslintignore
+  touch .eslintrc
+  touch .editorconfig
   ```
 
   There are as many ways to set up your folder hierarchy as there are developers, it seems. This way is pretty arbitrary and I've used many others. Some prefer to call the `app` folder `src`. Some prefer to call the `build` folder `dist` or `public` or (confusingly) `app`. Some use the `jsx` extension, others prefer to keep it to `js`. The `main.css` file could be `styles.css` or `index.css` or `app.css` or something else I haven't thought of.
 
   Some developers like to use `PascalCase` or `camelCase` for the file names. As not all filesystems are case sensitive, I'm not a huge fan of that practice (though I've used it occasionally). I prefer `train-case`. The important point is to be *consistent*. And if your team has an established style guide, then follow it precisely. Development is a team effort; express your individuality somewhere else.
 
-6. Add the HTML:
+6. Add the HTML in `/build/index.html:
 
   ```html
   <!DOCTYPE html>
@@ -61,6 +64,7 @@
 8. Add some CSS from [myth.io](http://www.myth.io/). We'll use this later to test whether the Webpack `myth-loader` is working (and to demonstrate how to process CSS files in Webpack). Here we're creating a couple of variables, one for the color red and the other to set a "large" pixel value for padding. Then we use them to set the style for paragraphs.
 
   ```css
+  /* app/main.css */
   :root {
     --red: #ff0000;
     --large: 10px;
@@ -320,22 +324,21 @@
 23. Now we can set up our specifications and add them to the `/test/tests.js` file. The comment at the top prevents ESLint from complaining that `describe` and `it` are not defined in the file.
 
   ```js
-  /* global describe it */
+  /*global describe it */
 
   import React from 'react'
 
   import chai, { expect } from 'chai'
   import chaiEnzyme from 'chai-enzyme'
-  import sinon from 'sinon'
 
   chai.use(chaiEnzyme())
 
-  import { mount, render, shallow } from 'enzyme'
+  import { render } from 'enzyme'
 
   import App from '../app/components/app.jsx'
 
   describe('<App/>', () => {
-    it ('displays the welcome message', () => {
+    it('displays the welcome message', () => {
       const wrapper = render(<App/>)
 
       expect(wrapper.text()).to.contain('Welcome')
@@ -343,31 +346,13 @@
   })
   ```
 
-24. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks:
-
-  ```js
-  "build": "webpack",
-  "lint": "eslint . --ext .js --ext .jsx --cache || true",
-  "test": "mocha --opts ./test/mocha.opts test/tests.js"
-  ```
-
-  - Use `npm run build` to compile and bundle the source code into `/build/app.js`
-  - Use `npm run lint` to lint the source code and report warnings and errors
-  - Use `npm test` to run the specifications in `/test/tests.js`
-
-25. Finally, let's set up the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
+24. We also need the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
 
   ```sh
   npm i -D webpack-dev-server
   ```
 
-26. Then we'll add a `start` script:
-
-  ```js
-  "start": "webpack-dev-server"
-  ```
-
-27. And we'll need to update our `webpack.config.babel.js` file to use the module.
+25. And we'll need to update our `webpack.config.babel.js` file to use the module.
 
   ```js
   const startConfig = {
@@ -388,7 +373,7 @@
   }
   ```
 
-28. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
+26. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
 
   ```js
   resolve: {
@@ -396,7 +381,7 @@
   }
   ```
 
-29. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
+27. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
 
   ```js
   module: {
@@ -417,7 +402,7 @@
   }
   ```
 
-30. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
+28. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better.
 
   ```js
   const stylelint = require('stylelint')
@@ -457,7 +442,7 @@
   }
   ```
 
-31. We'd better add the loader and lint dependencies:
+29. We'd better add the loader and lint dependencies:
 
   ```sh
   npm i -D style-loader css-loader myth-loader stylelint postcss-loader
@@ -469,13 +454,26 @@
   4. [stylelint]()
   5. [postcss-loader]()
 
-32. We need the `hmre` plugin, too.
+30. We need the `hmre` plugin, too.
 
   ```sh
   npm i -D babel-preset-react-hmre
   ```
 
   [babel-preset-react-hmre]()
+
+31. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
+
+  ```js
+  "build": "webpack",
+  "lint": "eslint . --ext .js --ext .jsx --cache || true",
+  "start": "webpack-dev-server",
+  "test": "mocha --opts ./test/mocha.opts test/tests.js"
+  ```
+
+  - Use `npm run build` to compile and bundle the source code into `/build/app.js`
+  - Use `npm run lint` to lint the source code and report warnings and errors
+  - Use `npm test` to run the specifications in `/test/tests.js`
 
 33. Now we can run the Webpack Dev Server.
 
@@ -485,7 +483,7 @@
 
   You should be able to see the app at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it.
 
-34. Now let's add `react-bootstrap` and have some fun:
+34. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
 
   ```sh
   npm i -S react-bootstrap
