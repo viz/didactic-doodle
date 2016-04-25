@@ -775,7 +775,7 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   </div>
 
   App.propTypes = {
-    children: PropTypes.object.isRequired
+    children: PropTypes.node.isRequired
   }
 
   export default App
