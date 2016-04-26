@@ -23,6 +23,9 @@ chai.use(chaiEnzyme())
 // http://airbnb.io/enzyme/
 import { shallow } from 'enzyme'
 
+// We'll use this to test the reducer
+import { createStore } from 'redux'
+
 // There are three ways to "render" your React components
 // These are mount, render, and shallow
 
@@ -45,6 +48,9 @@ import { shallow } from 'enzyme'
 import App from '../app/components/app.jsx'
 import Header from '../app/components/header.jsx'
 
+// Import the reducer
+import reducer from '../app/reducer.js'
+
 // Create a BDD-style describe block
 describe('<App/>', () => {
   // Add a specification to check whether the App when shallowly rendered
@@ -56,5 +62,30 @@ describe('<App/>', () => {
     // We imported expect from the chai library
     // to and contain are provided by chai and chai-enzyme
     expect(wrapper).to.contain(<Header/>)
+  })
+})
+
+// Test the reducer
+describe('reducer', () => {
+  it('increments the count when an INCREMENT action is dispatched', () => {
+    const store = createStore(reducer)
+    const action = { type: 'INCREMENT' }
+
+    store.dispatch(action)
+    store.dispatch(action)
+    store.dispatch(action)
+
+    expect(store.getState().count).to.equal(3)
+  })
+
+  it('increments the count when an DECREMENT action is dispatched', () => {
+    const store = createStore(reducer)
+    const action = { type: 'DECREMENT' }
+
+    store.dispatch(action)
+    store.dispatch(action)
+    store.dispatch(action)
+
+    expect(store.getState().count).to.equal(-3)
   })
 })

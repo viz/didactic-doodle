@@ -5,7 +5,8 @@ import DockMonitor from 'redux-devtools-dock-monitor'
 import React from 'react'
 import { render } from 'react-dom'
 import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-import { createStore } from 'redux'
+import { combineReducers, createStore } from 'redux'
+import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
 import { Provider } from 'react-redux'
 
 import './main.css'
@@ -22,8 +23,13 @@ const DevTools = createDevTools(
   </DockMonitor>
 )
 
-const store = createStore(
+const reducers = combineReducers({
   reducer,
+  routing: routerReducer
+})
+
+const store = createStore(
+  reducers,
   DevTools.instrument()
 )
 
@@ -31,9 +37,11 @@ const div = document.createElement('div')
 
 document.body.appendChild(div)
 
+const history = syncHistoryWithStore(browserHistory, store)
+
 render(<Provider store={store}>
   <div>
-    <Router history={browserHistory}>
+    <Router history={history}>
       <Route path='/' component={App}>
         <IndexRoute component={Home}/>
         <Route path='about' component={About}/>

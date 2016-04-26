@@ -943,4 +943,114 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
 
   Now we should be able to see the dock. Try it. You can hide and show the dock with Control-h. You can change where it appears on the screen with Control-q.
 
+49. Things are looking good. But we'd like to store our current routing state in our Redux store as well. We'll begin by importing the tools we need. So replace this:
 
+  ```js
+  import { createStore } from 'redux'
+  ```
+
+  with this:
+
+  ```js
+  import { combineReducers, createStore } from 'redux'
+  import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
+  ```
+
+50. Next, we'll add the `routerReducer` to our regular reducer using `combineReducers`. Replace this:
+
+  ```js
+  const store = createStore(
+    reducer,
+    DevTools.instrument()
+  )
+  ```
+
+  with this:
+
+  ```js
+  const reducers = combineReducers({
+    reducer,
+    routing: routerReducer
+  })
+
+  const store = createStore(
+    reducers,
+    DevTools.instrument()
+  )
+  ```
+
+  It should be pretty obvious what this does.
+
+51. Finally, we'll synchronize our browser history with the store. Replace this:
+
+  ```js
+  render(<Provider store={store}>
+    <div>
+      <Router history={browserHistory}>
+        <Route path='/' component={App}>
+          <IndexRoute component={Home}/>
+          <Route path='about' component={About}/>
+        </Route>
+      </Router>
+      <DevTools/>
+    </div>
+  </Provider>, div)
+  ```
+
+  with this:
+
+  ```js
+  const history = syncHistoryWithStore(browserHistory, store)
+
+  render(<Provider store={store}>
+    <div>
+      <Router history={history}>
+        <Route path='/' component={App}>
+          <IndexRoute component={Home}/>
+          <Route path='about' component={About}/>
+        </Route>
+      </Router>
+      <DevTools/>
+    </div>
+  </Provider>, div)
+  ```
+
+  Start the app with `npm start` and load the page at [http://localhost:8080/](http://localhost:8080/), then use Control-h, if necessary, to show the Redux Dock. Switch back and forth between the Home and About pages using the navbar, and see how the store changes. Look under the `router` key.
+
+52. Let's also add some tests to test the reducer. In `/test/tests.js` we'll import the reducer and `createStore` from `redux`:
+
+  ```js
+  import { createStore } from 'redux'
+
+  import reducer from '../app/reducer.js'
+  ```
+
+  Then we'll add the tests:
+
+  ```js
+  describe('reducer', () => {
+    it('increments the count when an INCREMENT action is dispatched', () => {
+      const store = createStore(reducer)
+      const action = { type: 'INCREMENT' }
+
+      store.dispatch(action)
+      store.dispatch(action)
+      store.dispatch(action)
+
+      expect(store.getState().count).to.equal(3)
+    })
+
+    it('increments the count when an DECREMENT action is dispatched', () => {
+      const store = createStore(reducer)
+      const action = { type: 'DECREMENT' }
+
+      store.dispatch(action)
+      store.dispatch(action)
+      store.dispatch(action)
+
+      expect(store.getState().count).to.equal(-3)
+    })
+  })
+  ```
+
+  Now if you run `npm test` you should see three passing tests.
