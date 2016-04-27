@@ -1,0 +1,3 @@
+{
+  "/topics/:topicId/cards/:cardId": "/cards/:cardId?topicId=:topicId"
+}
