@@ -9,13 +9,11 @@ import { combineReducers, createStore } from 'redux'
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
 import { Provider } from 'react-redux'
 
-import './main.css'
+import './theme/main.css'
 
-import App from './components/app.jsx'
-import Home from './components/home.jsx'
-import About from './components/about.jsx'
+import { App, Counter, Home, Topic } from './containers'
 
-import reducer from './reducer.js'
+import { reducer } from './redux/modules/reducer.js'
 
 const DevTools = createDevTools(
   <DockMonitor toggleVisibilityKey='ctrl-h' changePositionKey='ctrl-q'>
@@ -44,7 +42,8 @@ render(<Provider store={store}>
     <Router history={history}>
       <Route path='/' component={App}>
         <IndexRoute component={Home}/>
-        <Route path='about' component={About}/>
+        <Route path='counter' component={Counter}/>
+        <Route path='topic/:topicId' component={Topic}/>
       </Route>
     </Router>
     <DevTools/>

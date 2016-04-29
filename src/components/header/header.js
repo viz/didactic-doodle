@@ -18,8 +18,8 @@ const Header = () => <Navbar>
       <IndexLinkContainer to={{ pathname: '/' }}>
         <NavItem eventKey={1} href='#'>Home</NavItem>
       </IndexLinkContainer>
-      <LinkContainer to={{ pathname: '/about' }}>
-        <NavItem eventKey={2} href='#'>About</NavItem>
+      <LinkContainer to={{ pathname: '/counter' }}>
+        <NavItem eventKey={2} href='#'>Counter</NavItem>
       </LinkContainer>
     </Nav>
   </Navbar.Collapse>

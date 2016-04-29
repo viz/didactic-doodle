@@ -1,502 +1,370 @@
-# React Redux Intermediate
+# React Redux Intermediate Class #2
 
 This is an intermediate-level tutorial (tied in with a [Codementor.io course](https://www.codementor.io/classes)) that presumes that readers are proficient with JavaScript, have at least a passing familiarity with JavaScript 2015 syntax, and have done some basic work with React.js.
 
+Let's build a flash card app to begin. It seems to fit with our GitHub-inspired app name, *Didactic Doodle*.
+
 ## Instructions
 
-1. Create a git repo for your project and clone it to your working folder.
-2. Add or update the `.gitignore` file.
-
-  ```
-  .DS_Store
-  node_modules/
-  *.log
-  ```
-
-3. Run `npm init -y` then update the `package.json` file, or leave off the `-y` and answer the questions at the command line.
-4. Install webpack locally as a development dependency with `npm i -D webpack` (`i` is short for `install` and `-D` is the same as `--save-dev`).
-5. Create the folders and files we'll need:
+1. We need a back end API for our app. To save time during initial development, we'll use the wonderful [json-server](https://github.com/typicode/json-server). Let's begin by installing it:
 
   ```sh
-  mkdir app
-  mkdir app/components
-  mkdir build
-  mkdir test
-  touch app/index.jsx
-  touch app/main.css
-  touch app/components/app.jsx
-  touch build/bootstrap.css
-  touch build/index.html
-  touch test/mocha.opts
-  touch test/setup.js
-  touch test/tests.js
-  touch webpack.config.babel.js
-  touch .eslintignore
-  touch .eslintrc
-  touch .editorconfig
+  npm i -S json-server
   ```
 
-  There are as many ways to set up your folder hierarchy as there are developers, it seems. This way is pretty arbitrary and I've used many others. Some prefer to call the `app` folder `src`. Some prefer to call the `build` folder `dist` or `public` or (confusingly) `app`. Some use the `jsx` extension, others prefer to keep it to `js`. The `main.css` file could be `styles.css` or `index.css` or `app.css` or something else I haven't thought of.
+2. Next, we'll need to add a basic DB. For `json-server`, this is just a file with a JSON object. Each key is a different collection. So in our root folder, we'll need a `db.json` file (you can name it whatever you like). We'll preload it with some test data:
 
-  Some developers like to use `PascalCase` or `camelCase` for the file names. As not all filesystems are case sensitive, I'm not a huge fan of that practice (though I've used it occasionally). I prefer `train-case`. The important point is to be *consistent*. And if your team has an established style guide, then follow it precisely. Development is a team effort; express your individuality somewhere else.
-
-6. Add the HTML in `/build/index.html`.
-
-  ```html
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-
-      <title>Didactic Doodle</title>
-
-      <link rel="icon" href="/favicon.png">
-
-      <link rel="stylesheet" href="/bootstrap.css">
-    </head>
-    <body>
-      <script src="/app.js"></script>
-    </body>
-  </html>
-  ```
-
-  Some developers like to add a `<div/>` element into which they can render the React DOM. I prefer to create that element on the fly (see `/app/index.jsx` below) and append it to the body before rendering. YMMV.
-
-7. Add the `bootstrap.css` from [Bootswatch](http://bootswatch.com/paper/). At the request of a student, I've switched to the Paper theme. Choose your own, then select the `bootstrap.min.css` link from the navbar and copy and paste the code into your `/build/bootstrap.css` file. You can name this whatever you want. If you're using Sass or LESS, feel free to set this up differently. I'm going to use Myth, so I'm fine with plain CSS, and I'm OK, for now, with just loading it statically.
-8. Add some CSS from [myth.io](http://www.myth.io/). We'll use this later to test whether the Webpack `myth-loader` is working (and to demonstrate how to process CSS files in Webpack). Here we're creating a couple of variables, one for the color red and the other to set a "large" pixel value for padding. Then we use them to set the style for paragraphs.
-
-  ```css
-  /* app/main.css */
-  :root {
-    --red: #ff0000;
-    --large: 10px;
+  ```json
+  // db.json
+  {
+    "topics": [
+      {
+        "id": 1,
+        "title": "Literary Devices"
+      }
+    ],
+    "cards": [
+      {
+        "id": 1,
+        "topicId": 1,
+        "word": "Accumulation",
+        "definition": "Accumulation is derived from a Latin word which means 'pile up'. It is a stylistic device that is defined as a list of words which embody similar abstract or physical qualities or meanings with the intention to emphasize the common qualities that words hold. It is also an act of accumulating the scattered points. Accumulation examples are found in literary pieces and in daily conversations.",
+        "example": "Then shall our names,<br>Familiar in his mouth as household words,<br>Harry the King, Bedford and Exeter,<br>Warwick and Talbot, Salisbury and Gloucester,<br>Be in their flowing cups freshly remembered",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 2,
+        "topicId": 1,
+        "word": "Ballad",
+        "definition": "The word Ballad is of French provenance. It is a type of poetry or verse which was basically used in dance songs in the ancient France. Later on, during the late 16th and 17th century, it spread over the majority of European nations. Owing to its popularity and emotional appeal, it remained a powerful tool for poets and lyricists to prepare music in the form of lyrical ballads and earn a handsome income from it.",
+        "example": "'Day after day, day after day<br>We stuck nor breathe, nor motion;<br>As idle as a painted ship<br>Upon a painted ocean'",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 3,
+        "topicId": 1,
+        "word": "Cacophony",
+        "definition": "If we speak literally, cacophony points to a situation where there is a mixture of harsh and inharmonious sounds. In literature, however, the term refers to the use of words with sharp, harsh, hissing and unmelodious sounds primarily those of consonants to achieve desired results.",
+        "example": "I detest war because cause of war is always trivial.",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 4,
+        "topicId": 1,
+        "word": "Dactyl",
+        "definition": "Dactyl is a metrical foot, or a beat in a line, containing three syllables in which first one is accented followed by second and third unaccented syllables (accented/unaccented/unaccented) in quantitative meter such as in the word 'humanly.' In dactyl, we put stress on first syllable and do not stress on second and third syllables, try to say it loud-'HU-man-ly.' Dactyl originates from a Greek word dáktylos, which means finger, because it is like bones of human fingers, beginning from central long knuckle, which is followed by two short bones.",
+        "example": "<b>Half</b> a league, <b>half</b> a league,<br><b>Half</b> a league <b>on</b>ward,<br><b>All</b> in the <b>val</b>ley of <b>Death</b> <br><b>Rode</b> the six <b>hun</b>dred.<br>'<b>For</b>ward, the <b>Light</b> Brigade!<br><b>Charge</b> for the <b>guns</b>!' he said.<br><b>In</b>to the <b>val</b>ley of <b>Death</b><br><b>Rode</b> the six <b>hun</b>dred.",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 5,
+        "topicId": 1,
+        "word": "Elegy",
+        "definition": "Elegy is a form of literature which can be defined as a poem or song in the form of elegiac couplets, written in honor of someone deceased. It typically laments or mourns the death of the individual.",
+        "example": "My Captain does not answer, his lips are pale and still;<br>My father does not feel my arm, he has no pulse nor will;<br>The ship is anchor’d safe and sound, its voyage closed and done;<br>From fearful trip, the victor ship, comes in with object won;<br>Exult, O shores, and ring, O bells!<br>But I, with mournful tread,<br>Walk the deck my Captain lies,<br>Fallen cold and dead.",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 6,
+        "topicId": 1,
+        "word": "Fable",
+        "definition": "The word fable is derived from a Latin word 'fibula' which means a story that is a derivative of a word 'fari' which means to speak. Fable is a literary device which can be defined as a concise and brief story intended to provide a moral lesson at the end.",
+        "example": "Now, comrades, what is the nature of this life of ours? Let us face it: our lives are miserable, laborious, and short. We are born, we are given just so much food as will keep the breath in our bodies… and the very instant that our usefulness has come to an end…. No animal in England knows the meaning of happiness or leisure after he is a year old. No animal in England is free. The life of an animal is misery and slavery….",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 7,
+        "topicId": 1,
+        "word": "Genre",
+        "definition": "Genre means the type of art, literature or music characterized by a specific form, content and style. For example, literature has four main genres; poetry, drama, fiction and non-fiction. All of these genres have particular features and functions that distinguish them from one another. Hence, it is necessary on the part of readers to know which category of genre they are reading in order to understand the message it conveys, as they may have certain expectations prior to the reading concerned.",
+        "example": "",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 8,
+        "topicId": 1,
+        "word": "Haiku",
+        "definition": "A haiku poem has three lines, where the first and last lines have five moras, while the middle line has seven. The pattern in Japanese genre is 5-7-5. The mora is another name of a sound unit, which is like a syllable, but it is different from a syllable. As the moras cannot be translated into English, they are modified and syllables are used instead. The lines of such poems rarely rhyme with each other.",
+        "example": "Autumn moonlight-<br>a worm digs silently<br>into the chestnut.",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 9,
+        "topicId": 1,
+        "word": "Iamb",
+        "definition": "An iamb is a literary device that can be defined as a foot containing unaccented and short syllables followed by a long and accented syllable in a single line of a poem (unstressed/stressed syllables). Two of Robert Frost's poems <i>Dust of Snow</i> and <i>The Road not Taken</i> are considered two of the most popular examples of iamb.",
+        "example": "Has <b>giv</b>en my <b>heart</b><br>A <b>change</b> of <b>mood</b><br>And <b>saved</b> some <b>part</b><br>Of a <b>day</b> I had <b>rued</b>.",
+        "misses": 0,
+        "hits": 0
+      },
+      {
+        "id": 10,
+        "topicId": 1,
+        "word": "Jargon",
+        "definition": "Jargon is a literary term that is defined as a use of specific phrases and words by writers in a particular situation, profession or trade. These specialized terms are used to convey hidden meanings accepted and understood in that field. Jargon examples are found in literary and non-literary pieces of writing.",
+        "example": "Certain medications can cause or worsen nasal symptoms (especially congestion). These include the following: birth control pills, some drugs for high blood pressure (e.g., alpha blockers and beta blockers), antidepressants, medications for erectile dysfunction, and some medications for prostatic enlargement. If rhinitis symptoms are bothersome and one of these medications is used, ask the prescriber if the medication could be aggravating the condition.",
+        "misses": 0,
+        "hits": 0
+      }
+    ]
   }
+  ```
 
-  p {
-    color: var(--red);
-    padding: var(--large);
+  We have a `topics` collection with one topic so far, and an associated `cards` collection. Each card represents a flash card. It has a **word** to display on one side of the card, and both a **definition** and an **example** to display on the flip side.
+
+3. By default, `json-server` will only nest routes one level deep. We want to go two: down to the individual card, e.g., `/topics/1/cards/3`. We can do this by adding a `routes.json` file and specifying an alias to a filtered route, thus:
+
+  ```json
+  // routes.json
+  {
+    "/topics/:topicId/cards/:cardId": "/cards/:cardId?topicId=:topicId"
   }
   ```
 
-9. In his book [_Webpack and React_](https://survivejs.com/), Juha Lindstedt creates a small node module to merge configurations in Webpack. We'll use his technique as it is simple and keeps the configuration in one file.
+4. Now we can add a script to our `/package.json` file to start the JSON API server using the `db.json` and `routes.json` files:
+
+  ```json
+  "server": "json-server --watch db.json --routes routes.json --port 3005",
+  ```
+
+  When we run this with `npm run server`, we should be able to access the JSON API at, for example, [http://localhost:3005/topics/1/cards/3](http://localhost:3005/topics/1/cards/3). Play around with it. Pretty neat, huh? And with a REST tool such as Postman or Paws, you can do POST, PUT, DELETE, etc. requests as well.
+
+5. We'll need a library with which to do AJAX&mdash;OK, AJAJ (Asynchronous JavaScript and **JSON**)&mdash;too. jQuery is too heavy. We don't need all that stuff. [Superagent](https://github.com/visionmedia/superagent) is very nice. But [Axios](https://github.com/mzabriskie/axios) makes better use of JS promises, so let's use that:
 
   ```sh
-  npm i -D webpack-merge
+  npm i -S axios
   ```
 
-10. We're writing our code (most of it) in JavaScript 2015, also known as ECMAScript 6 or ES6 or ES2015. Fun, eh? We'll need to "transpile" this code back to ES5 for it to run in today's browsers. This is the primary reason we're using Webpack. The module we use to do the transpilation is [Babel](https://babeljs.io/). We'll need to install the dependencies we need (as devDependencies).
-
-  ```sh
-  npm i -D babel-core babel-loader babel-preset-es2015 \
-  babel-preset-react babel-preset-stage-1 babel-register
-  ```
-  1. [babel-core](https://github.com/babel/babel) provides the core logic of Babel
-  2. [babel-loader](https://github.com/babel/babel-loader) is a Webpack loader that runs Babel for us
-  3. [babel-preset-es2015](https://babeljs.io/docs/plugins/preset-es2015/) adds the plugins we need to transpile from ES6 to ES5
-  4. [babel-preset-react](https://babeljs.io/docs/plugins/preset-react/) adds the plugins we need to work with React
-  5. [babel-preset-stage-1](https://babeljs.io/docs/plugins/preset-stage-1/) adds the [Stage 1](https://babeljs.io/docs/plugins/#stage-x-experimental-presets-) plugins (we take a small risk with using features this far out)
-  6. [babel-register](https://babeljs.io/docs/usage/require/) adds the require hook, which will bind itself to node's require and automatically compile files on the fly. I mistakenly said this included the polyfill during the class, but it does not. My bad.
-
-11. Configure webpack. I've renamed the config file to `webpack.config.babel.js` to take advantage of the `babel-register` require hook. Now we can use imports and other ES6 syntax in our config file. So yay.
-
-  ```js
-  // webpack.config.babel.js
-  import merge from 'webpack-merge'
-  import path from 'path'
-
-  const TARGET = process.env.npm_lifecycle_event
-
-  process.env.BABEL_ENV = TARGET
-
-  const PATHS = {
-    app: path.join(__dirname, 'app'),
-    build: path.join(__dirname, 'build')
-  }
-
-  const common = {
-    entry: {
-      app: PATHS.app
-    },
-    output: {
-      path: PATHS.build,
-      filename: 'app.js'
-    }
-  }
-
-  const startConfig = {}
-
-  const buildConfig = {}
-
-  const config = (TARGET === 'start' || !TARGET)
-    ? merge(common, startConfig)
-    : merge(common, buildConfig)
-
-  export default config
-  ```
-
-12. We're going to need React:
-
-  ```sh
-  npm i -S react react-dom
-  ```
-
-  1. [react](https://github.com/facebook/react) provides the basic React.js library
-  2. [react-dom](https://www.npmjs.com/package/react-dom) for working with the DOM
-
-13. Now let's set up our React app. Add the following to `/app/index.jsx`.
+  And let's drop some code into our `/app/components/app.jsx` file temporarily to see if things work. Add the following somewhere in `app.jsx`:
 
   ```jsx
-  import React from 'react'
-  import { render } from 'react-dom'
+  import axios from 'axios'
 
+  axios.get('http://localhost:3005/topics/1/cards/4')
+    .then((resp) => console.log(resp))
+    .catch((err) => console.log(err))
+  ```
+
+  Then start the JSON API server (`npm run server`) in one terminal tab or window or pane, and the HMR WebpackDevServer (`npm start`) in another. Load the app at [http://localhost:8080/](http://localhost:8080/) and check the Dev Tools console. You should see a successful API call that returns the JSON for the Card with ID 4.
+
+  Once you have tested it, move the above JS into a temp file&mdash;we'll need it later.
+
+6. What we have in mind is a very simple app to show flash cards arranged by topic. We'll also track views and how many times the user got the card right (on the honor system&mdash;what's the point of cheating?). And we'll come up eventually with a clever algorithm for deciding which cards to show, when, and how often.
+
+  Here is a basic IA diagram of our app as we currently intend to build it (we'll complicate it later, as is our wont):
+
+  ![didactic doodle](./docs/ia.png)
+
+  First thing we'll need to do is to rename our pages. We can leave the Home page alone for now, but let's change `/app/components/about.jsx` to `/app/components/topic.jsx` and add a new file (we can just copy the code across for now and change the names) in `/app/components/card.jsx`:
+
+  ```jsx
+  // app/components/topic.jsx (formerly about.jsx)
+  import React from 'react'
+
+  import { Col, Row } from 'react-bootstrap'
+
+  const Topic = () => <Row>
+    <Col xs={12}>
+      <h1>Topic</h1>
+    </Col>
+  </Row>
+
+  export default Topic
+  ```
+
+
+  ```jsx
+  // app/components/card.jsx
+  import React from 'react'
+
+  import { Col, Row } from 'react-bootstrap'
+
+  const Card = () => <Row>
+    <Col xs={12}>
+      <h1>Card</h1>
+    </Col>
+  </Row>
+
+  export default Card
+  ```
+
+  We'll also need to change the import in `/app/index.jsx` to Topic, and the routes as well:
+
+  ```jsx
+  // in app/index.jsx
+  import Topic from './components/topic.jsx'
+  ```
+
+  ```jsx
+  // in app/index.jsx
+  <Route path='topic' component={Topic}/>
+  ```
+
+  And the link in Header (we'll worry about adding the Card route later):
+
+  ```jsx
+  // in app/components/header.jsx
+  <LinkContainer to={{ pathname: '/topic' }}>
+    <NavItem eventKey={2} href='#'>Topic</NavItem>
+  </LinkContainer>
+  ```
+
+7. Before we move on to creating our app, let's finish setting up our actions and test our current reducer. Then we'll build on that. We'll begin by creating a button on the Topic page that will increment our counter. We can use a Bootstrap button and update the `/app/components/topic.jsx` file like so:
+
+  ```js
+  // in app/components/topic.jsx
+  import { Button, Col, Row } from 'react-bootstrap'
+
+  const Topic = () => <Row>
+    <Col xs={12}>
+      <h1>Topic</h1>
+      <Button>+</Button>
+    </Col>
+  </Row>
+  ```
+
+8. Next, we'll want a click of the button to dispatch an `INCREMENT` action to our Redux store. We're going to use the [Flux Standard Action](https://github.com/acdlite/flux-standard-action) (FSA) pattern. To do this, we'll use [redux-actions](https://github.com/acdlite/redux-actions), so let's begin by installing that module:
+
+  ```sh
+  npm i -S redux-actions
+  ```
+
+9. At this point, we need to stop to consider how we want to structure the file system for our app. There are two common approaches. One is to group files by function: components, reducers, actions, etc. The other approach is to group by modules, so all the files associated with, say, the Topic module would go in one folder called `topic`. This includes actions, components, etc.
+
+  The former setup is probably best for small- or medium-sized apps; the latter for large apps. As our app is fairly small, we'll go with a version of the former.
+
+  In our app folder let's create several new folders on the same level as the components folder, and we'll move files accordingly, and we'll add some `index.js` files to allow us to simplify imports. But first, to be consistent with the way others are doing this style, we'll rename our `app` folder to `src` (for "source").
+
+  ```sh
+  mv app src
+  mkdir src/components/header
+  mkdir src/components/home
+  touch src/components/index.js
+  mkdir src/containers
+  mkdir src/containers/app
+  mkdir src/containers/card
+  mkdir src/containers/topic
+  touch src/containers/index.js
+  mkdir src/helpers
+  touch src/helpers/index.js
+  mkdir src/redux
+  mkdir src/redux/middleware
+  mkdir src/redux/modules
+  mkdir src/theme
+  mkdir src/utils
+  touch src/utils/index.js
+  ```
+
+  Next we'll rename and move a few files. As much as I like using the `.jsx` extension to indicate React components, we'll switch to plain `.js` to simplify imports.
+
+  ```sh
+  mv src/index.jsx src/client.js
+  mv src/reducer.js src/redux/modules/reducer.js
+  mv src/main.css src/theme/main.css
+  mv src/components/app.jsx src/containers/app/app.js
+  mv src/components/card.jsx src/containers/card/card.js
+  mv src/components/header.jsx src/components/header/header.js
+  mv src/components/home.jsx src/components/home/home.js
+  mv src/components/topic.jsx src/containers/topic/topic.js
+  ```
+
+10. Next we'll need to fix our imports that are broken. Let's update our `index.js` files to make importing components, etc. a little easier. In `/src/components/index.js` put:
+
+  ```js
+  export { default as Header } from './header/header'
+  export { default as Home } from './home/home'
+  ```
+
+  In `/src/containers/index.js` put:
+
+  ```js
+  export { default as App } from './app/app'
+  export { default as Card } from './card/card'
+  export { default as Topic } from './topic/topic'
+  ```
+
+  In `/src/containers/app/app.js` change `import Header from './header.jsx'` to:
+
+  ```js
+  import { Header } from '../../components'
+  ```
+
+  See how this is going to work? The `index.js` file becomes a kind of shortcut to the individual components. Now in `/src/client.js` change this:
+
+  ```js
+  // THIS IS THE OLD VERSION
   import './main.css'
 
   import App from './components/app.jsx'
+  import Home from './components/home.jsx'
+  import About from './components/about.jsx'
 
-  const div = document.createElement('div')
-
-  document.body.appendChild(div)
-
-  render(<App/>, div)
+  import reducer from './reducer.js'
   ```
 
-  We need React, of course. It also gives us the JSX (Extended JavaScript) capability. As we're working with the DOM (in browserland), we'll need the ReactDOM, too. But we can just grab the one function we need: `render`.
-
-  We use the Webpack `style-loader` to load the styles in our `/app/main.css` file (processing them through the `myth-loader` and `css-loader` first).
-
-  Then we import our App component, create a new HTML div element, append it to the body, and then render our App component into it.
-
-14. Now we can code our App component in `/app/components/app.jsx`.
-
-  ```jsx
-  import React from 'react'
-
-  const App = () => <p>Welcome to the App!</p>
-
-  export default App
-
-  ```
-
-  Keep it simple to start. We import React, and build a *presentation* component using a simple ES6 fat arrow function to return our JSX. Then we export it for use in `/app/index.jsx` and elsewhere.
-
-15. We'll want some help with our syntax, so let's install a linter. ESLint is the current favorite. We'll add some plugins and a loader to make it work with Webpack.
-
-  ```sh
-  npm i -D eslint eslint-loader \
-  eslint-config-standard eslint-config-standard-jsx \
-  eslint-config-standard-react eslint-plugin-react \
-  eslint-plugin-promise eslint-plugin-standard
-  ```
-
-  1. [eslint](http://eslint.org/) checks our JS code to make sure it's correct
-  2. [eslint-loader](https://github.com/MoOx/eslint-loader) let's us use ESLint in Webpack
-  3. [eslint-config-standard](https://github.com/feross/eslint-config-standard) configures ESLint to use the [standard.js](http://standardjs.com/) style guide&mdash;a nice way to remain consistent
-  4. [eslint-config-standard-jsx](https://github.com/feross/eslint-config-standard-jsx) adds Standard.js JSX support
-  5. [eslint-config-standard-react](https://github.com/feross/eslint-config-standard-react) adds Standard.js React support
-  6. [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) adds React-specific linting rules
-  7. [eslint-plugin-promise](https://github.com/xjamundx/eslint-plugin-promise) enforces best practices for JS promises
-  8. [eslint-plugin-standard](https://github.com/xjamundx/eslint-plugin-standard) adds some extra rules needed for Standard.js
-
-16. We don't want to lint everything twice, so let's add our `build` folder to `.eslintignore`.
-
-  ```
-  build/
-  ```
-
-17. We'll also configure ESLint in our `.eslintrc` file. There are a [great many options](http://eslint.org/docs/user-guide/configuring), of course.
-
-  ```
-  {
-    "extends": [
-      "standard",
-      "standard-react"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 6,
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "sourceType": "module"
-    },
-    "env": {
-      "browser": true,
-      "node": true,
-      "mocha": true
-    },
-    "plugins": [
-      "react"
-    ]
-  }
-  ```
-
-18. While we're at it, we can use the `.editorconfig` to [configure our text editors](http://EditorConfig.org) so all our developers are using the same format. These are pretty self-explanatory.
-
-  ```
-  # EditorConfig: http://EditorConfig.org
-
-  root = true
-
-  [*]
-  indent_style = space
-  indent_size = 2
-
-  end_of_line = lf
-  charset = utf-8
-  trim_trailing_whitespace = true
-  insert_final_newline = true
-
-  [*.md]
-  trim_trailing_whitespace = false
-  ```
-
-19. We can use a `.babelrc` file to configure Babel, or we can just add our `babel` settings to the `package.json` file. See also the [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre) for details.
-
-  ```json
-  "babel": {
-    "presets": [
-      "es2015",
-      "react",
-      "stage-1"
-    ],
-    "env": {
-      "start": {
-        "presets": [
-          "react-hmre"
-        ]
-      }
-    }
-  }
-  ```
-
-20. Time to set up our tests and add a first specification. We can use `mocha.opts` (in `/test/mocha.opts`) to add arguments that would otherwise need to be included on the command line. Here we require the `setup.js` file before the specs are run, we turn on "full trace" capability, and we tell it to use `babel-register` to transpile the specs from ES6 to ES5 before running them. That allows us to use JavaScript 2015 in our tests. Nice!
-
-  ```
-  --require ./test/setup
-  --full-trace
-  --compilers js:babel-register
-  ```
-
-21. Before we run the tests, we want to set up our environment. We'll use [jsdom](https://github.com/tmpvar/jsdom), which is a "JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js". We'll add the following to our `/test/setup.js` file. I've swiped the [latest recommendation](https://github.com/airbnb/enzyme/blob/master/docs/guides/jsdom.md#using-enzyme-with-jsdom) and updated it slightly to use the spread operator and more ES6:
+  to this:
 
   ```js
-  import { jsdom } from 'jsdom'
+  import './theme/main.css'
 
-  let exposedProperties = [
-    'window',
-    'navigator',
-    'document'
-  ]
+  import { Home } from './components'
+  import { App, Topic } from './containers'
 
-  global.document = jsdom('')
-  global.window = document.defaultView
-
-  // Loop through the defaultView adding properties to exposedProperties
-  // and assigning the global property
-  Object.keys(document.defaultView).forEach((property) => {
-    if (typeof global[property] === 'undefined') {
-      exposedProperties = [ ...exposedProperties, property ]
-      global[property] = document.defaultView[property]
-    }
-  })
-
-  global.navigator = {
-    userAgent: 'node.js'
-  }
+  import reducer from './redux/modules/reducer'
   ```
 
-  This creates the most basic HTML DOM and then sets the global variables for the `document`, the `window`, the `navigator`, etc.
-
-22. And we'll need to install all the dependencies we need:
-
-  ```sh
-  npm i -D chai chai-enzyme cheerio enzyme jsdom mocha react-addons-test-utils sinon
-  ```
-
-  1. [chai](http://chaijs.com/) is a [BDD/TDD](https://www.youtube.com/watch?v=mT8QDNNhExg) assertion library for node and the browser that can be delightfully paired with any javascript testing framework
-  2. [chai-enzyme](https://github.com/producthunt/chai-enzyme) adds Chai.js assertions and convenience functions for testing React components with Enzyme
-  3. [cheerio](https://github.com/cheeriojs/cheerio) is a fast, flexible, and lean implementation of core jQuery designed specifically for the server and is used by Enzyme for DOM traversal
-  4. [enzyme](https://github.com/airbnb/enzyme) is AirBnB's JavaScript testing utilities for React and is easier to use than the Facebook utilities
-  5. [jsdom](https://github.com/tmpvar/jsdom) is a JavaScript implementation of the WHATWG DOM and HTML standards, for use with node.js
-  6. [mocha](https://mochajs.org/) is a feature-rich JavaScript test framework running on Node.js and in the browser
-  7. [react-addons-test-utils](https://facebook.github.io/react/docs/test-utils.html) are the Facebook React test utilities (this is an implicit dependency of enzyme in order to support react@0.13-14)
-  8. [sinon](http://sinonjs.org/) provides standalone test spies, stubs and mocks for JavaScript
-
-23. Now we can set up our specifications and add them to the `/test/tests.js` file. The comment at the top prevents ESLint from complaining that `describe` and `it` are not defined in the file.
+  And in our `test/tests.js` file, change this:
 
   ```js
-  /*global describe it */
-
-  import React from 'react'
-
-  import chai, { expect } from 'chai'
-  import chaiEnzyme from 'chai-enzyme'
-
-  chai.use(chaiEnzyme())
-
-  import { render } from 'enzyme'
-
+  THIS IS THE OLD VERSION
   import App from '../app/components/app.jsx'
+  import Header from '../app/components/header.jsx'
 
-  describe('<App/>', () => {
-    it('displays the welcome message', () => {
-      const wrapper = render(<App/>)
-
-      expect(wrapper.text()).to.contain('Welcome')
-    })
-  })
+  import reducer from '../app/reducer.js'
   ```
 
-  See the [documentation](https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md) for more information.
-
-24. Enzyme requires that we add some configuration to our `webpack.config.babel.js` file to work well with React 0.15. Add the following to the `common` config object:
+  to this:
 
   ```js
-  externals: {
-    'jsdom': 'window',
-    'react/lib/ReactContext': 'window',
-    'react/lib/ExecutionEnvironment': true,
-    'react/addons': true
+  import { App } from '../src/containers'
+  import { Header } from '../src/components'
+
+  import reducer from '../src/redux/modules/reducer'
+  ```
+
+  It's a bit nicer, isn't it? We'll clean this up still more later.
+
+11. We also need to fix our `webpack.config.babel.js` file. Change this:
+
+  ```js
+  // THIS IS THE OLD VERSION
+  entry: {
+    app: PATHS.app
   },
   ```
 
-25. We also need the Webpack Dev Server and Hot Module Replacement for our development mode. First we'll add the dependency.
-
-  ```sh
-  npm i -D webpack-dev-server
-  ```
-
-26. Let's import webpack into our config so we can work with plugins:
+  to this:
 
   ```js
-  import webpack from 'webpack'
-  ```
-
-27. And we'll need to update our `webpack.config.babel.js` file to use the module.
-
-  ```js
-  const startConfig = {
-    devtool: 'eval-source-map',
-    devServer: {
-      contentBase: PATHS.build,
-      historyApiFallback: true,
-      hot: true,
-      inline: true,
-      progress: true,
-      stats: 'errors-only',
-      host: process.env.HOST,
-      port: process.env.PORT
-    },
-    plugins: [
-      new webpack.HotModuleReplacementPlugin()
-    ]
-  }
-  ```
-
-28. Also in `webpack.config.babel.js`, we'll need to configure babel as well by addin the extensions to resolve to the `common` config object (I added it between the `entry` and `output` keys).
-
-  ```js
-  resolve: {
-    extensions: [ '', '.js', '.jsx' ]
-  }
-  ```
-
-29. Below the `output` key in the `common` config object we'll add the preloaders (for linting) and the loaders in a `module` block.
-
-  ```js
-  module: {
-    preLoaders: [
-      {
-        test: /\.jsx?$/,
-        loaders: [ 'eslint' ],
-        include: PATHS.app
-      }
-    ],
-    loaders: [
-      {
-        test: /\.jsx?$/,
-        loaders: [ 'babel?cacheDirectory' ],
-        include: PATHS.app
-      }
-    ]
-  }
-  ```
-
-  Preloaders run first, then loaders. Each load step can use one or more loaders. The `test` key provides a regular expression to test file names against. This regular expression matches all filenames that *end* with either `.js` or `.jsx`. In the preload stage, the `eslint-loader` is run on all files in the `PATHS.app` path ending with `.js` or `.jsx`. (You can leave off the `-loader` part.)
-
-  In the loading phase, the `babel-loader` will be run against those same files, and we've told it to cache the results so that we don't rerun the babel compiler needlessly.
-
-30. While we're at it, let's extend it with the CSS loaders and preLoaders, too. And we'll add a `postcss` block to configure the `stylelint` linter for CSS. Here we set it to insist on lowercase letters when colors are specified in Hex. Dang if that don't look better. Add the import to the imports at the top of the file.
-
-  ```js
-  import stylelint from 'stylelint'
-
-  module: {
-    preLoaders: [
-      {
-        test: /\.css$/,
-        loaders: [ 'postcss' ],
-        include: PATHS.app
-      },
-      {
-        test: /\.jsx?$/,
-        loaders: [ 'eslint' ],
-        include: PATHS.app
-      }
-    ],
-    loaders: [
-      {
-        test: /\.css$/,
-        loaders: [ 'style', 'css', 'myth' ],
-        include: PATHS.app
-      },
-      {
-        test: /\.jsx?$/,
-        loaders: [ 'babel?cacheDirectory' ],
-        include: PATHS.app
-      }
-    ]
+  entry: {
+    main: './app/client.js'
   },
-  postcss: function () {
-    return [stylelint({
-      rules: {
-        'color-hex-case': 'lower'
-      }
-    })]
-  }
   ```
 
-  These work the same way. The test regex matches filenames ending in `.css` in the `PATHS.app` path. Then it applies the loader(s). In the preload stage, `postcss` is used to run the `stylelint`. This checks our CSS for errors. We configure `postcss` in the `postcss` function below, passing a rule to `stylelint` (as an example) to warn us of any hex color values not using lowercase letters.
-
-  In the load step, three loaders are applied from right to left. First the `myth-loader` converts future CSS syntax into current syntax. Then the `css-loader` pulls in any imports, etc. and outputs the final CSS. Finally, the `style-loader` inserts the CSS into our bundled code.
-
-31. We'll need to add the loader and lint dependencies:
-
-  ```sh
-  npm i -D style-loader css-loader myth-loader stylelint postcss-loader
-  ```
-
-  1. [style-loader](https://github.com/webpack/style-loader) adds the CSS to the exported DOM in a `<style>` element
-  2. [css-loader](https://github.com/webpack/css-loader) loads CSS file(s) with resolved imports and returns CSS code
-  3. [myth-loader](https://github.com/besarthoxhaj/myth-loader) converts future CSS syntax to current syntax with [myth.io](http://www.myth.io/)
-  4. [stylelint](https://github.com/stylelint/stylelint) is a "mighty, modern" [CSS linter](http://stylelint.io/)
-  5. [postcss-loader](https://github.com/postcss/postcss-loader) postprocesses your CSS with [PostCSS](http://postcss.org/) plugins (we could also have used the [stylelint-loader](https://www.npmjs.com/package/stylelint-loader) directly, but I thought it would be nice to see some postcss as well)
-
-32. We need the `hmre` plugin, too.
-
-  ```sh
-  npm i -D babel-preset-react-hmre
-  ```
-
-  [babel-preset-react-hmre](https://github.com/danmartinez101/babel-preset-react-hmre): This preset will configure Babel 6 for [HMR](https://github.com/gaearon/react-transform-hmr) and friends. It is recommended that this preset only be configured for your development builds.
-
-33. Confused as to what our `webpack.config.babel.js` file should look like now? Well, here it is in full:
+  Also, we need to update our PATHS. Change `app` to `src` everywhere except as the name of the build bundle. To make it clear, here's the entire updated `webpack.config.babel.js` file:
 
   ```js
   import webpack from 'webpack'
-  import merge from 'webpack-merge'
   import path from 'path'
+  import merge from 'webpack-merge'
   import stylelint from 'stylelint'
 
   const TARGET = process.env.npm_lifecycle_event
@@ -504,13 +372,13 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   process.env.BABEL_ENV = TARGET
 
   const PATHS = {
-    app: path.join(__dirname, 'app'),
+    src: path.join(__dirname, 'src'),
     build: path.join(__dirname, 'build')
   }
 
   const common = {
     entry: {
-      app: PATHS.app
+      main: './src/client.js'
     },
     resolve: {
       extensions: [ '', '.js', '.jsx' ]
@@ -530,24 +398,24 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
         {
           test: /\.css$/,
           loaders: [ 'postcss' ],
-          include: PATHS.app
+          include: PATHS.src
         },
         {
           test: /\.jsx?$/,
           loaders: [ 'eslint' ],
-          include: PATHS.app
+          include: PATHS.src
         }
       ],
       loaders: [
         {
           test: /\.css$/,
           loaders: [ 'style', 'css', 'myth' ],
-          include: PATHS.app
+          include: PATHS.src
         },
         {
           test: /\.jsx?$/,
           loaders: [ 'babel?cacheDirectory' ],
-          include: PATHS.app
+          include: PATHS.src
         }
       ]
     },
@@ -586,471 +454,726 @@ This is an intermediate-level tutorial (tied in with a [Codementor.io course](ht
   export default config
   ```
 
-34. We need to add some scripts to our `package.json` file to run building, linting, and testing tasks, and for running the development server in HMR mode:
-
-  ```js
-  "build": "webpack",
-  "lint": "eslint . --ext .js --ext .jsx --cache || true",
-  "start": "webpack-dev-server",
-  "test": "mocha --opts ./test/mocha.opts test/tests.js"
-  ```
-
-  - Use `npm run build` to compile and bundle the source code into `/build/app.js`
-  - Use `npm run lint` to lint the source code and report warnings and errors
-  - Use `npm start` to start the app with `webpack-dev-server`
-  - Use `npm test` to run the specifications in `/test/tests.js`
-
-35. Now we can run the Webpack Dev Server.
+12. Wow! It's like a whole new app. Until we run it, that is. Then it looks the same as the old app. To test it, run our scripts:
 
   ```sh
+  npm run lint
+  npm run build
+  npm test
   npm start
   ```
 
-  You should be able to see the app (just a line in red that says, "Welcome to the App!") at [http://localhost:8080/](http://localhost:8080/). If we make changes to a source file and then save them, the app should reload instantly. Try it. Change "App!" to "Flapp!" or something like that, save the file, and check that the page has reloaded with the new text.
+  Then check it out at [http://localhost:8080/](http://localhost:8080/) and make sure everything still works.
 
-36. Now let's add [react-bootstrap](https://react-bootstrap.github.io/) and have some fun:
-
-  ```sh
-  npm i -S react-bootstrap
-  ```
-
-37. We can add a header. Create `/app/components/header.jsx` and add:
+13. So let's move on. We want output the current state of the counter below the INCREMENT button on the Topic page. How can we get hold of this state? First, we can add a count line like this to `/src/containers/topic/topic.js`:
 
   ```jsx
-  import React from 'react'
-
-  import { Nav, Navbar, NavItem } from 'react-bootstrap'
-
-  const Header = () => <Navbar>
-    <Navbar.Header>
-      <Navbar.Brand>
-        <a href='#'>Didactic Doodle</a>
-      </Navbar.Brand>
-    </Navbar.Header>
-    <Nav>
-      <NavItem eventKey={1} href='#'>Home</NavItem>
-      <NavItem eventKey={2} href='#'>About</NavItem>
-    </Nav>
-  </Navbar>
-
-  export default Header
+  <Col xs={12}>
+    <h1>Topic</h1>
+    <Button>+</Button>
+    <p>The count is {count}.</p>
+  </Col>
   ```
 
-  Whoa! Where did all this come from? Simple. I just went to the react-bootstrap [Navbar Basic Example](https://react-bootstrap.github.io/components.html#navbars-basic), clicked on "show code", and swiped the JSX code. Then I dropped the dropdown (heh) and modified the code as necessary. ESLint warned me which imports I was missing so I added them up top. The links won't work, but we have a navbar at least and that's a start. We got a lot of benefit for just a few seconds work.
-
-38. Now let's use our header in `/app/components/app.jsx`. We'll take advantage of react-bootstrap's `Grid` component as well (this just adds a `<div class="container"></div>` wrapper).
+  Of course, that won't work yet because there is no `count`. So how do we get that from the store? Well, one way is to grab it from the context. In `/src/client.js` we put it in the context using the `<Provider />` component. Now we can change our `<Topic />` component to grab that store and get it's state. The simplest way is like this:
 
   ```jsx
-  import React from 'react'
-
-  import { Grid } from 'react-bootstrap'
-
-  import Header from './header.jsx'
-
-  const App = () => <div>
-    <Header/>
-    <Grid><p>Welcome to the Zapp!</p></Grid>
-  </div>
-
-  export default App
-  ```
-
-  Take a look at our app now and you should see a nice navbar at the top. That was easy!
-
-39. Now, let's add some pages:
-
-  ```jsx
-  // /app/components/home.jsx
-  import React from 'react'
-
-  import { Col, Row } from 'react-bootstrap'
-
-  const Home = () => <Row>
-    <Col xs={12}>
-      <h1>Home</h1>
-    </Col>
-  </Row>
-
-  export default Home
-  ```
-
-  ```jsx
-  // /app/components/about.jsx
-  import React from 'react'
-
-  import { Col, Row } from 'react-bootstrap'
-
-  const About = () => <Row>
-    <Col xs={12}>
-      <h1>About</h1>
-    </Col>
-  </Row>
-
-  export default About
-  ```
-
-40. We're going to need some kind of router to allow us to navigate to our new pages. To begin, let's add `react-router` (we'll also need `react-router-bootstrap` to help integrate `react-router` and `react-bootstrap`).
-
-  ```sh
-  npm i -S react-router react-router-bootstrap
-  ```
-
-41. Now we can update our `Header` to make the links work. We'll need to update the regular links to make them work with `react-router`. We can do this by wrapping them in the appropriate containers provided by `react-router-bootstrap`:
-
-  ```jsx
-  import React from 'react'
-
-  import { Nav, Navbar, NavItem } from 'react-bootstrap'
-
-  import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap'
-
-  const Header = () => <Navbar>
-    <Navbar.Header>
-      <Navbar.Brand>
-        <IndexLinkContainer to={{ pathname: '/' }}>
-          <a>Setup</a>
-        </IndexLinkContainer>
-      </Navbar.Brand>
-      <Navbar.Toggle />
-    </Navbar.Header>
-    <Navbar.Collapse>
-      <Nav>
-        <IndexLinkContainer to={{ pathname: '/' }}>
-          <NavItem eventKey={1} href='#'>Home</NavItem>
-        </IndexLinkContainer>
-        <LinkContainer to={{ pathname: '/about' }}>
-          <NavItem eventKey={2} href='#'>About</NavItem>
-        </LinkContainer>
-      </Nav>
-    </Navbar.Collapse>
-  </Navbar>
-
-  export default Header
-  ```
-
-42. We'll need to update `/app/index.jsx` to add our routes.
-
-  ```jsx
-  import React from 'react'
-  import { render } from 'react-dom'
-  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-
-  import './main.css'
-
-  import App from './components/app.jsx'
-  import Home from './components/home.jsx'
-  import About from './components/about.jsx'
-
-  const div = document.createElement('div')
-
-  document.body.appendChild(div)
-
-  render(<Router history={browserHistory}>
-    <Route path='/' component={App}>
-      <IndexRoute component={Home}/>
-      <Route path='about' component={About}/>
-    </Route>
-  </Router>, div)
-  ```
-
-  1. `browserHistory` allows us to use pushState to control the browser history (we'll need to take this into account on the back end so that our routes don't get 404s if the user reloads a page)
-  2. `IndexRoute` is used for the default page
-  3. `Route` adds a route, and
-  4. `Router` collects the routes and provides the `react-router` functionality
-
-  This should be pretty easy to understand if you've worked with routing before.
-
-43. Now we should be able to switch between pages, but if we try it we won't see any difference. That's because the individual pages (home or about) are being passed to `App` as children, but our current `App` doesn't do anything with them. So let's update our `/app/components/app.jsx` file accordingly.
-
-  ```js
+  // src/containers/topic/topic.js
   import React, { PropTypes } from 'react'
 
-  import { Grid } from 'react-bootstrap'
+  import { Button, Col, Row } from 'react-bootstrap'
 
-  import Header from './header.jsx'
+  const Topic = ({}, { store }) => {
+    const { count } = store.getState().reducer
 
-  const App = ({ children }) => <div>
-    <Header/>
-    <Grid>{children}</Grid>
-  </div>
-
-  App.propTypes = {
-    children: PropTypes.node.isRequired
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <Button>+</Button>
+        <p>The count is {count}.</p>
+      </Col>
+    </Row>
   }
 
-  export default App
+  Topic.contextTypes = {
+    store: PropTypes.object.isRequired
+  }
+
+  export default Topic
   ```
 
-  We import the PropTypes from React so we can specify the type of `children` (an object). The first argument to our `App` function is the `props`. We use destructuring assignment here to pull out the `children` prop, then we insert the value of `children` into the `<Grid>` component. Finally, we set the `propTypes` for the `App` component and indicate that the `children` prop is required.
+14. Now we want to have a click of the button increment the count. We can do this by dispatching an `INCREMENT` action to the store:
 
-  If you run the app and try the links now, you should see the page change. We now have a single-page app.
+  ```jsx
+  const Topic = ({}, { store }) => {
+    const { count } = store.getState().reducer
 
-44. We've broken our App spec now. Let's rewrite it to check that the Header is present instead:
+    const incrementCount = () => store.dispatch({ type: 'INCREMENT' })
+
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <Button onClick={incrementCount}>+</Button>
+        <p>The count is {count}.</p>
+      </Col>
+    </Row>
+  }
+  ```
+
+  Very nice. So now we can click on the button, and we'll see the count change in the store by viewing the wonderful DockMonitor. But there's a problem: the count changes in the store, but the Topic page is not updated to reflect the new count. This is because the Topic component is not aware that the state of the app has changed. What we'd really like to do is to supply that count to the Topic component as a prop. That way when it changed, the prop would change and the Topic component would re-render. And if we passed the `dispatch` method in as a prop as well, then we could still call it with our action.
+
+  This is what a `container` is: it's a component wrapped in another component that does nothing but pull the store out of the context and use it to pass props to the wrapped component. And `react-redux` provides a method for this called `connect`. It takes two parameters&mdash;a `mapStateToProps` function that takes the state from the store and maps whatever parts we need to the props of the wrapped component, and `mapDispatchToProps` which does the same thing for `dispatch`. The `connect` function returns another function. We pass in the component that we want to wrap, and we get back the container. It's easier than it sounds.
+
+15. If we're just passing the store's `dispatch` through unchanged, then `connect` will do it by default. We need to import `connect`. Then we can create our `mapStateToProps` function which will take the `state` and return an object with the props we want. Here, we just want the `reducer.count` from the state. Then we need to change our Topic component to take the `count` and `dispatcher` props that `connect` will pass in. We add the propTypes we need, then wrap the Topic in our TopicContaner and export the container instead:
 
   ```js
-  /*global describe it */
+  // in src/containers/topic/topic.js
+  import React, { PropTypes } from 'react'
 
-  import React from 'react'
+  import { Button, Col, Row } from 'react-bootstrap'
 
-  import chai, { expect } from 'chai'
-  import chaiEnzyme from 'chai-enzyme'
+  import { connect } from 'react-redux'
 
-  chai.use(chaiEnzyme())
+  const mapStateToProps = (state) => {
+    return {
+      count: state.reducer.count
+    }
+  }
 
-  import { shallow } from 'enzyme'
+  const Topic = ({ count, dispatch }) => {
+    const incrementCount = () => dispatch({ type: 'INCREMENT' })
 
-  import App from '../app/components/app.jsx'
-  import Header from '../app/components/header.jsx'
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <Button onClick={incrementCount}>+</Button>
+        <p>The count is {count}.</p>
+      </Col>
+    </Row>
+  }
 
-  describe('<App/>', () => {
-    it('includes the <Header/>', () => {
-      const wrapper = shallow(<App><p/></App>)
+  Topic.propTypes = {
+    count: PropTypes.number.isRequired,
+    dispatch: PropTypes.func.isRequired
+  }
 
-      expect(wrapper).to.contain(<Header/>)
-    })
-  })
+  const TopicContainer = connect(mapStateToProps)(Topic)
+
+  export default TopicContainer
   ```
 
-  We've switched from `render` to `shallow`. We need to pass a child to `<App>` (it's expecting a route, but we're doing a shallow render here and so we'll just send an empty paragraph). Finally, we check that the shallowly rendered `<App/>` component includes a `<Header/>`. If you run it with `npm test` it should work.
+16. Now look how easy it is to add the DECREMENT action:
 
-44. Let's add redux to manage state, and we'll use `react-redux-router` to store our current route state in the redux store as well.
+  ```jsx
+  const Topic = ({ count, dispatch }) => {
+    const incrementCount = () => dispatch({ type: 'INCREMENT' })
+    const decrementCount = () => dispatch({ type: 'DECREMENT' })
 
-  ```sh
-  npm i -S redux react-redux react-router-redux
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <Button onClick={incrementCount}>+</Button>
+        <p>The count is {count}.</p>
+        <Button onClick={decrementCount}>-</Button>
+      </Col>
+    </Row>
+  }
   ```
 
-45. Just to give us something to play with, we'll add a simple reducer that takes a single value and increments or decrements it. Create `app/reducer.js` and add:
+17. Ha, ha. Remember [redux-actions](https://github.com/acdlite/redux-actions)? Yeah, me neither. But we're going to use them now to create our action functions for us. First we'll import the `createAction` function:
+
+  ```js
+  // in app/containers/topic/topic.js
+  import { createAction } from 'redux-actions'
+  ```
+
+  Then we'll change our actions from this:
+
+  ```js
+  const incrementCount = () => dispatch({ type: 'INCREMENT' })
+  const decrementCount = () => dispatch({ type: 'DECREMENT' })
+  ```
+
+  To this:
+
+  ```js
+  const increment = createAction('INCREMENT')
+  const decrement = createAction('DECREMENT')
+
+  const incrementCount = () => dispatch(increment())
+  const decrementCount = () => dispatch(decrement())
+  ```
+
+18. Does it still work? It should. This may not seem like much of a savings, and in this simplified case it isn't. But if our actions took a payload&mdash;perhaps an amount to increment/decrement the count by, with the default being 1&mdash;then we could just pass that payload into the action functions, e.g. `increment(10)` to get back an action that looks like this:
+
+  ```js
+  {
+    type: 'INCREMENT',
+    payload: 10
+  }
+  ```
+
+  Try changing the callbacks to this:
+
+  ```js
+  const incrementCount = () => dispatch(increment(10))
+  const decrementCount = () => dispatch(decrement(5))
+  ```
+
+  Then adjust the `/src/redux/modules/reducer.js` file accordingly:
+
+  ```js
+  // in src/redux/modules/reducer.js
+  case INCREMENT:
+    return {
+      ...state,
+      count: state.count + (action.payload || 1)
+    }
+  case DECREMENT:
+    return {
+      ...state,
+      count: state.count - (action.payload || 1)
+    }
+  ```
+
+  Now when you click the increment button, the count should increase by 10, and when you click the decrement button, it should decrease by 5. And this can work even with very complex payloads.
+
+19. Let's move the action creators to the reducer file. We'll export them together. First, in `/src/client.js` change the import for the reducer to this:
+
+  ```js
+  import { reducer } from './redux/modules/reducer'
+  ```
+
+  Then move the `increment` and `decrement` functions and the import of `createActions` into the `/src/redux/modules/reducer.js` file, and export those and the reducer:
 
   ```js
   const INCREMENT = 'INCREMENT'
   const DECREMENT = 'DECREMENT'
+
+  import { createAction } from 'redux-actions'
+
+  const increment = createAction(INCREMENT)
+  const decrement = createAction(DECREMENT)
 
   const reducer = (state = { count: 0 }, action) => {
     switch (action.type) {
       case INCREMENT:
         return {
           ...state,
-          count: state.count + 1
+          count: state.count + (action.payload || 1)
         }
       case DECREMENT:
         return {
           ...state,
-          count: state.count - 1
+          count: state.count - (action.payload || 1)
         }
       default:
         return state
     }
   }
 
-  export default reducer
+  export {
+    increment,
+    decrement,
+    reducer
+  }
   ```
 
-  Our reducer takes the current state and an action and returns a new state. Here we have two action types: increment and decrement, which do exactly what you'd expect. If some other action is passed (or none), we return the state unchanged. Our state is just an object with a single key, `count` and an integer value, defaulting to 0.
-
-  Later we'll add action creators, containers, etc., but for now this is enough to get started.
-
-46. In our top level `/app/index.jsx` file, we'll create the store from our reducer. Then we'll use a `Provider` wrapper (which we get from `react-redux`) to pass the store into the React context. We can then pull it out of the context where we need it.
+  Finally, add the import to the Topic container file, `/src/containers/topic/topic.js`:
 
   ```js
-  import React from 'react'
-  import { render } from 'react-dom'
-  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-  import { createStore } from 'redux'
-  import { Provider } from 'react-redux'
-
-  import './main.css'
-
-  import App from './components/app.jsx'
-  import Home from './components/home.jsx'
-  import About from './components/about.jsx'
-
-  import reducer from './reducer.js'
-
-  const store = createStore(reducer)
-
-  const div = document.createElement('div')
-
-  document.body.appendChild(div)
-
-  render(<Provider store={store}>
-    <Router history={browserHistory}>
-      <Route path='/' component={App}>
-        <IndexRoute component={Home}/>
-        <Route path='about' component={About}/>
-      </Route>
-    </Router>
-  </Provider>, div)
+  // in src/containers/topic/topic.js
+  import { increment, decrement } from '../../redux/modules/reducer'
   ```
 
-47. We'll want to see what's going on with our store, so let's add the Redux tools, `redux-devtools`, `redux-devtools-dock-monitor`, and `redux-devtools-log-monitor`:
+  and update the import in the tests at `/test/test.js`:
 
-  ```sh
-  npm i -D redux-devtools redux-devtools-dock-monitor redux-devtools-log-monitor
+  ```js
+  // in test/tests.js
+  import { reducer } from '../src/redux/modules/reducer'
   ```
 
-  1. [redux-devtools](https://github.com/gaearon/redux-devtools) with hot reloading, action replay, and [customizable UI](http://youtube.com/watch?v=xsSnOQynTHs)
-  2. [redux-devtools-dock-monitor](https://github.com/gaearon/redux-devtools-dock-monitor) a resizable and movable dock for Redux DevTools monitors
-  3. [redux-devtools-log-monitor](https://github.com/gaearon/redux-devtools-log-monitor) the default monitor for Redux DevTools with a tree view
+  Does it still work?
 
-48. We'll add them to our `/app/index.jsx` file thus:
+20. OK, before we go any further, let's think about the shape our our app's state. But first, let's move the counter into it's own page so we can play with the Topic page. Copy the `topic.js` file into a new folder called `counter` and rename the file to `counter.js`, then change Topic to Counter:
+
+  ```js
+  // src/containers/counter/counter.js
+  import React, { PropTypes } from 'react'
+
+  import { Button, Col, Row } from 'react-bootstrap'
+
+  import { connect } from 'react-redux'
+
+  import { increment, decrement } from '../../redux/modules/reducer'
+
+  const mapStateToProps = (state) => {
+    return {
+      count: state.reducer.count
+    }
+  }
+
+  const Counter = ({ count, dispatch }) => {
+    const incrementCount = () => dispatch(increment(10))
+    const decrementCount = () => dispatch(decrement(5))
+
+    return <Row>
+      <Col xs={12}>
+        <h1>Counter</h1>
+        <Button onClick={incrementCount}>+</Button>
+        <p>The count is {count}.</p>
+        <Button onClick={decrementCount}>-</Button>
+      </Col>
+    </Row>
+  }
+
+  Counter.propTypes = {
+    count: PropTypes.number.isRequired,
+    dispatch: PropTypes.func.isRequired
+  }
+
+  const CounterContainer = connect(mapStateToProps)(Counter)
+
+  export default CounterContainer
+  ```
+
+  Then add it to the `/src/containers/index.js` file:
+
+  ```js
+  // in /src/containers/index.js
+  export { default as Counter } from './counter/counter'
+  ```
+
+  To the `src/components/header/header.js` file:
 
   ```jsx
-  import { createDevTools } from 'redux-devtools'
-  import LogMonitor from 'redux-devtools-log-monitor'
-  import DockMonitor from 'redux-devtools-dock-monitor'
+  // in src/components/header/header.js
+  <LinkContainer to={{ pathname: '/counter' }}>
+    <NavItem eventKey={3} href='#'>Counter</NavItem>
+  </LinkContainer>
+  ```
 
+  And update the `src/client.js` file, too:
+
+  ```js
+  // in src/client.js
+  import { App, Counter, Topic } from './containers'
+  ```
+
+  and:
+
+  ```jsx
+  // in src/client.js
+  <Route path='/' component={App}>
+    <IndexRoute component={Home}/>
+    <Route path='topic' component={Topic}/>
+    <Route path='counter' component={Counter}/>
+  </Route>
+  ```
+
+  And we'll restore Topic to its former glory:
+
+  ```jsx
+  // src/containers/topic/topic.js
   import React from 'react'
-  import { render } from 'react-dom'
-  import { browserHistory, IndexRoute, Route, Router } from 'react-router'
-  import { createStore } from 'redux'
-  import { Provider } from 'react-redux'
 
-  import './main.css'
+  import { Col, Row } from 'react-bootstrap'
 
-  import App from './components/app.jsx'
-  import Home from './components/home.jsx'
-  import About from './components/about.jsx'
+  const Topic = () => <Row>
+    <Col xs={12}>
+      <h1>Topic</h1>
+    </Col>
+  </Row>
 
-  import reducer from './reducer.js'
-
-  const DevTools = createDevTools(
-    <DockMonitor toggleVisibilityKey='ctrl-h' changePositionKey='ctrl-q'>
-      <LogMonitor theme='tomorrow' preserveScrollTop={false} />
-    </DockMonitor>
-  )
-
-  const store = createStore(
-    reducer,
-    DevTools.instrument()
-  )
-
-  const div = document.createElement('div')
-
-  document.body.appendChild(div)
-
-  render(<Provider store={store}>
-    <div>
-      <Router history={browserHistory}>
-        <Route path='/' component={App}>
-          <IndexRoute component={Home}/>
-          <Route path='about' component={About}/>
-        </Route>
-      </Router>
-      <DevTools/>
-    </div>
-  </Provider>, div)
+  export default Topic
   ```
 
-  Now we should be able to see the dock. Try it. You can hide and show the dock with Control-h. You can change where it appears on the screen with Control-q.
+  Now let's re-run everything to make sure it works:
 
-49. Things are looking good. But we'd like to store our current routing state in our Redux store as well. We'll begin by importing the tools we need. So replace this:
+  ```sh
+  npm run lint
+  npm test
+  npm run build
+  npm start
+  ```
+
+21. Alrighty. State. Hmm.
+
+  So we want our app to allow us to run through a deck of "flash cards". For each card we're presented with a word or concept we want to memorize. Then we "flip" the card over and check whether we were right. It's too complicated to check automatically (though we could eventually have the user write her guesses down and then we could see how they improved over time). That might work for simple cards for memorizing, say, vocabulary. But for concepts it's just too difficult to program for such a simple app.
+
+  We also want the app to present the cards to us in some random order, maybe ten or twenty cards in a session. We loop through the cards repeatedly. After we've gotten a card right three times in a row, that card is retired. Now we could just do a shorter group until all cards are retired and that ends the session. Or we could pull in a new card each time we retire one until the entire topic is exhausted. Maybe this is a setting?
+
+  We'll also need to think about users. Is it one big set and each user sets up her own app? Or do we allow different users? If that's the case, we probably want to authenticate the user. Down the road, we could add administrative privileges and add the cards and topics via the interface. Or give the users the ability to add cards for themselves.
+
+  You can see where this could go. Users could develop their own sets of cards and make them public or keep them private. Users could rate each other's public sets. For people who like to memorize stuff&mdash;which, sadly, does not really include me&mdash;this could be a really fun and educational app.
+
+  But for our purposes, let's stick with simple for now. One user, one topic to start, maybe a dozen cards. We'll need to have a "word" for the "front" of the card, and a "definition" for the back. Maybe through in an "example". We need to have an `id` and a `topicId`. Then we'll need to track hits and misses. Here's an example from `db.json`.
+
+  ```json
+  {
+    "id": 1,
+    "topicId": 1,
+    "word": "Accumulation",
+    "definition": "Accumulation is derived from a Latin word which means 'pile up'. It is a stylistic device that is defined as a list of words which embody similar abstract or physical qualities or meanings with the intention to emphasize the common qualities that words hold. It is also an act of accumulating the scattered points. Accumulation examples are found in literary pieces and in daily conversations.",
+    "example": "Then shall our names,<br>Familiar in his mouth as household words,<br>Harry the King, Bedford and Exeter,<br>Warwick and Talbot, Salisbury and Gloucester,<br>Be in their flowing cups freshly remembered",
+    "misses": 0,
+    "hits": 0
+  }
+  ```
+
+  Later we'll probably want to move the hits and misses out to a separate collection, probably in the user or associated with the user. Maybe "views"? But I doubt we'll have time to get that far . . .
+
+  To start, let's work locally in the client. Then we'll persist the data and changes to the server, loading the initial data from there as well.
+
+  So let's copy the `db.json` file into an `initialState` constant in our `/src/redux/modules/reducer.js` file:
 
   ```js
-  import { createStore } from 'redux'
+  // in src/redux/modules/reducer.js
+  const initialState = {
+    topics: [
+      {
+        id: 1,
+        title: 'Literary Devices'
+      }
+    ],
+    cards: [
+      {
+        id: 1,
+        topicId: 1,
+        word: 'Accumulation',
+        definition: 'Accumulation is derived from a Latin word which means "pile up". It is a stylistic device that is defined as a list of words which embody similar abstract or physical qualities or meanings with the intention to emphasize the common qualities that words hold. It is also an act of accumulating the scattered points. Accumulation examples are found in literary pieces and in daily conversations.',
+        example: 'Then shall our names,<br>Familiar in his mouth as household words,<br>Harry the King, Bedford and Exeter,<br>Warwick and Talbot, Salisbury and Gloucester,<br>Be in their flowing cups freshly remembered',
+        misses: 0,
+        hits: 0
+      } // 9 more . . .
+    ],
+    count: 0
+  }
+
+  const reducer = (state = initialState, action) => {
+    // reducer code
+  }
   ```
 
-  with this:
+  Run the linter, tests, etc. and check it out in the Dock. See how it's in our state? Now we have a starting point. Later we'll pull this in from the server API and we'll persist updates to the back end as well.
+
+22. Now we'll work on using this new state. We want to list all our topics on the home page, so we'll need to convert the Home component to a container. Let's move the folder over first:
+
+  ```sh
+  mv src/components/home src/containers/home
+  ```
+
+  Then we'll need to fix the imports. Remove `export { default as Home } from './home/home'` from `src/components/index.js` and add it to `src/containers/index.js`:
 
   ```js
-  import { combineReducers, createStore } from 'redux'
-  import { routerReducer, syncHistoryWithStore } from 'react-router-redux'
+  export { default as App } from './app/app'
+  export { default as Card } from './card/card'
+  export { default as Counter } from './counter/counter'
+  export { default as Home } from './home/home'
+  export { default as Topic } from './topic/topic'
   ```
 
-50. Next, we'll add the `routerReducer` to our regular reducer using `combineReducers`. Replace this:
+  Then change `/src/clients.js` from this:
 
   ```js
-  const store = createStore(
-    reducer,
-    DevTools.instrument()
-  )
+  // THIS IS THE OLD VERSION
+  import { Home } from './components'
+  import { App, Card, Counter, Topic } from './containers'
   ```
 
-  with this:
+  to this:
 
   ```js
-  const reducers = combineReducers({
-    reducer,
-    routing: routerReducer
-  })
-
-  const store = createStore(
-    reducers,
-    DevTools.instrument()
-  )
+  // in src/clients.js
+  import { App, Card, Counter, Home, Topic } from './containers'
   ```
 
-  It should be pretty obvious what this does.
-
-51. Finally, we'll synchronize our browser history with the store. Replace this:
+23. Now we can convert the Home component to a container that will load the list of topics from the store. First, we'll need to add the `PropTypes` to our import. Then we'll import the Bootstrap `<Table/>` to use for listing our topics. We can grab the code from [react-bootstrap Table](https://react-bootstrap.github.io/components.html#tables) and strip it down for our use. Finally, we'll need `connect` from `react-redux`:
 
   ```js
-  render(<Provider store={store}>
-    <div>
-      <Router history={browserHistory}>
-        <Route path='/' component={App}>
-          <IndexRoute component={Home}/>
-          <Route path='about' component={About}/>
-        </Route>
-      </Router>
-      <DevTools/>
-    </div>
-  </Provider>, div)
+  // in src/containers/home/home.js
+  import React, { PropTypes } from 'react'
+
+  import { Col, Row, Table } from 'react-bootstrap'
+
+  import { connect } from 'react-redux'
   ```
 
-  with this:
+  We'll map our state to the props, mapping the `topics` array:
 
   ```js
-  const history = syncHistoryWithStore(browserHistory, store)
-
-  render(<Provider store={store}>
-    <div>
-      <Router history={history}>
-        <Route path='/' component={App}>
-          <IndexRoute component={Home}/>
-          <Route path='about' component={About}/>
-        </Route>
-      </Router>
-      <DevTools/>
-    </div>
-  </Provider>, div)
+  // in src/containers/home/home.js
+  const mapStateToProps = (state) => {
+    return {
+      topics: state.reducer.topics
+    }
+  }
   ```
 
-  Start the app with `npm start` and load the page at [http://localhost:8080/](http://localhost:8080/), then use Control-h, if necessary, to show the Redux Dock. Switch back and forth between the Home and About pages using the navbar, and see how the store changes. Look under the `router` key.
-
-52. Let's also add some tests to test the reducer. In `/test/tests.js` we'll import the reducer and `createStore` from `redux`:
+  Then we'll import the props we need into the Home component, change the heading, and add the table to display the topics. For now, we'll just check the length of the array (should be 1) to make sure we're getting it.
 
   ```js
-  import { createStore } from 'redux'
+  // in src/containers/home/home.js
+  const Home = ({ topics, dispatch }) => <Row>
+    <Col xs={6}>
+      <h1>Topics</h1>
 
-  import reducer from '../app/reducer.js'
+      <Table striped bordered condensed hover>
+        <tbody>
+          <tr>
+            <td>{topics.length}</td>
+          </tr>
+        </tbody>
+      </Table>
+    </Col>
+  </Row>
   ```
 
-  Then we'll add the tests:
+  We need to declare our `propTypes`:
 
   ```js
-  describe('reducer', () => {
-    it('increments the count when an INCREMENT action is dispatched', () => {
-      const store = createStore(reducer)
-      const action = { type: 'INCREMENT' }
-
-      store.dispatch(action)
-      store.dispatch(action)
-      store.dispatch(action)
-
-      expect(store.getState().count).to.equal(3)
-    })
-
-    it('increments the count when an DECREMENT action is dispatched', () => {
-      const store = createStore(reducer)
-      const action = { type: 'DECREMENT' }
-
-      store.dispatch(action)
-      store.dispatch(action)
-      store.dispatch(action)
-
-      expect(store.getState().count).to.equal(-3)
-    })
-  })
+  // in src/containers/home/home.js
+  Home.propTypes = {
+    topics: PropTypes.array.isRequired,
+    dispatch: PropTypes.func.isRequired
+  }
   ```
 
-  Now if you run `npm test` you should see three passing tests.
+  Then we can create our HomeContainer and export it:
+
+  ```js
+  // in src/containers/home/home.js
+  const HomeContainer = connect(mapStateToProps)(Home)
+
+  export default HomeContainer
+  ```
+
+  If we run the app and check the home page, we should see a table with `1` in a single row.
+
+24. Let's create a function to render our table rows. If you've taken one of my classes before, you know that I'm a big fan of [ramda.js](http://ramdajs.com/docs/). Let's install that to get the benefits. If you haven't used it, it's like lodash or underscore on steriods.
+
+  We'll import Ramda's `addIndex` and `map` functions, and we'll use the `addIndex` function to create our own `map` function that passes the index as well as the value:
+
+  ```js
+  // in src/containers/home/home.js
+  import { addIndex, map } from 'ramda'
+
+  const indexedMap = addIndex(map)
+  ```
+
+  Then we can create a render function that will run through the topics and return a row for each. Add the function, using the index as the `key` property for the row, and then update the component to use `renderRows`:
+
+  ```js
+  // in src/containers/home/home.js
+  const renderRows = (topics) => indexedMap((topic, idx) => <tr key={idx}>
+    <td>{topic.title}</td>
+  </tr>, topics)
+
+  const Home = ({ topics, dispatch }) => <Row>
+    <Col xs={6}>
+      <h1>Topics</h1>
+
+      <Table striped bordered condensed hover>
+        <tbody>{renderRows(topics)}</tbody>
+      </Table>
+    </Col>
+  </Row>
+  ```
+
+  That should work, but just to test it, let's update our `initialState` in our `/src/redux/modules/reducer.js` file to include a second topic:
+
+  ```js
+  // in src/redux/modules/reducer.js
+  topics: [
+    {
+      id: 1,
+      title: 'Literary Devices'
+    },
+    {
+      id: 2,
+      title: 'Famous Dogs'
+    }
+  ],
+  ```
+
+  Now we should see both topics.
+
+25. Let's make them links to the topic pages in question. We'll need to update the routes to handle the `topicId`. In the `/src/client.js` file. We'll nest the Card path and require a cardId as well, but we may need to change this.
+
+  ```jsx
+  // in src/client.js
+  <Router history={history}>
+    <Route path='/' component={App}>
+      <IndexRoute component={Home}/>
+      <Route path='topic/:topicId' component={Topic}>
+        <Route path='card/:cardId' component={Card}/>
+      </Route>
+      <Route path='counter' component={Counter}/>
+    </Route>
+  </Router>
+  ```
+
+  We're going to go to the topics from the Home page, so let's remove the link in the Header, too and change the `eventKey` of the Counter:
+
+  ```jsx
+  // in src/components/header/header.js
+  <Navbar.Collapse>
+    <Nav>
+      <IndexLinkContainer to={{ pathname: '/' }}>
+        <NavItem eventKey={1} href='#'>Home</NavItem>
+      </IndexLinkContainer>
+      <LinkContainer to={{ pathname: '/counter' }}>
+        <NavItem eventKey={2} href='#'>Counter</NavItem>
+      </LinkContainer>
+    </Nav>
+  </Navbar.Collapse>
+  ```
+
+26. Now let's update the Topic component to Display the topic title (for starters). Import the `connect` function and create the `mapStateToProps` function, add the props and `propTypes`, create the container, and export it. This should be getting to be second nature by now:
+
+  ```js
+  // in src/containers/topic/topic.js
+  import { connect } from 'react-redux'
+
+  const mapPropsToState = (state) => {
+    return {
+      topics: state.reducer.topics
+    }
+  }
+
+  const Topic = ({ topics, params, dispatch }) => {
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <p>This is topic #{params.topicId}.</p>
+        <p>{JSON.stringify(topics)}</p>
+      </Col>
+    </Row>
+  }
+
+  Topic.propTypes = {
+    topics: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired
+  }
+
+  const TopicContainer = connect(mapPropsToState)(Topic)
+
+  export default TopicContainer
+  ```
+
+  When we load the page, we should see our topics as an array. We'll need to find the right topic using that `params.topicId`. Ramda to the rescue! Let's import the Ramda `find` function. We'll need `propEq`, too ([propEq](http://ramdajs.com/docs/#propEq)):
+
+  ```js
+  // in src/containers/topic/topic.js
+  import { find, propEq } from 'ramda'
+  ```
+
+  We'll create our own finder function, and use it to get the correct topic. This is tricky! Remember that the `params.topicId` is coming from the URL, thus it is a *string*. We need an integer, so we'll need to use `parseInt` to cast it to one:
+
+  ```js
+  // in src/containers/topic/topic.js
+  const Topic = ({ topics, params, dispatch }) => {
+    const finder = find(propEq('id', parseInt(params.topicId, 10)))
+
+    return <Row>
+      <Col xs={12}>
+        <h1>Topic</h1>
+        <p>This is topic #{params.topicId}.</p>
+        <p>{JSON.stringify(finder(topics))}</p>
+      </Col>
+    </Row>
+  }
+  ```
+
+  Now we should see the topic as a string. We'll want to display the title, so change the `<Col>` to:
+
+  ```js
+  // in src/containers/topic/topic.js
+    <Col xs={12}>
+      <h1>{finder(topics).title}</h1>
+    </Col>
+  ```
+
+  And we should see the title on the page if we go to [http://localhost:8080/topic/1](http://localhost:8080/topic/1).
+
+27. Let's make the rows in the table on the Home page link to the right Topic pages. We'll need to import the `Link` from `react-router`:
+
+  ```js
+  // in src/containers/home/home.js
+  import { Link } from 'react-router'
+  ```
+
+  Then we can update the table:
+
+  ```js
+  // in src/containers/home/home.js
+  const renderRows = (topics) => indexedMap((topic, idx) => {
+    const path = `/topic/${topic.id}`
+
+    return <tr key={idx}>
+      <td><Link to={path}>{topic.title}</Link></td>
+    </tr>
+  }, topics)
+  ```
+
+  Now when we check the Home page we can see that the topics are links to the Topic page.
+
+28. Let's list the cards on the Topic page. We'll import the Table, as with the home page, and do the same thing, but with Cards, each linking to a card page. To begin, we'll update the imports to include the Table, some more Ramda functions, and the Link from `react-router`, and we'll add our `indexedMap` function.
+
+  ```js
+  // in src/containers/topic/topic.js
+  import { Col, Row, Table } from 'react-bootstrap'
+
+  import { Link } from 'react-router'
+
+  import { addIndex, find, map, propEq } from 'ramda'
+
+  const indexedMap = addIndex(map)
+  ```
+
+  Then we'll update our Topic component and the `propTypes`:
+
+  ```js
+  // in src/containers/topic/topic.js
+  const Topic = ({ cards, topics, params, dispatch }) => {
+    const finder = find(propEq('id', parseInt(params.topicId, 10)))
+
+    return <Row>
+      <Col xs={12}>
+        <h1>{finder(topics).title}</h1>
+
+        <Table striped bordered condensed hover>
+          <tbody>{renderRows(cards)}</tbody>
+        </Table>
+      </Col>
+    </Row>
+  }
+
+  Topic.propTypes = {
+    cards: PropTypes.array.isRequired,
+    topics: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired
+  }
+  ```
+
+  Finally, we'll add an updated `renderRows` function that works with cards and nested paths:
+
+  ```js
+  // in src/containers/topic/topic.js
+  const renderRows = (cards) => indexedMap((card, idx) => {
+    const path = `/topic/${card.topicId}/card/${card.id}`
+
+    return <tr key={idx}>
+      <td><Link to={path}>{card.word}</Link></td>
+    </tr>
+  }, cards)
+  ```
+
+  Test everything and it should work. On a Topic page you should see a list of words linking to a (future) Card page. There's just one problem: we show all the cards on every topic page. We need a filter. That's next.
+
+
+
+
+

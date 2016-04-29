@@ -12,21 +12,13 @@ process.env.BABEL_ENV = TARGET
 // Using `path` allows us to create paths that will work on any OS
 // (the path separator will depend on the OS)
 const PATHS = {
-  app: path.join(__dirname, 'app'),
+  src: path.join(__dirname, 'src'),
   build: path.join(__dirname, 'build')
 }
 
-// About the CSS loaders
-// The myth-loader converts "future" CSS syntax to current syntax allowing us
-// to use the latest CSS features in today's browsers (kind of like babel with JS)
-// The css-loader handles the imports, etc. and outputs the full CSS
-// The style-loader inserts the CSS into the bundled code
-
-// This is the common configuration
-// We'll merge in lifecycle-specific configurations for start and build below
 const common = {
   entry: {
-    app: PATHS.app  // process the files in this folder and subfolders
+    main: './src/client.js'
   },
   resolve: {
     extensions: [ '', '.js', '.jsx' ]  // process files with these extensions
@@ -46,24 +38,24 @@ const common = {
       {
         test: /\.css$/,           // For files ending in .css
         loaders: [ 'postcss' ],   // run the postcss plugin before running the loaders
-        include: PATHS.app        // Look in this path
+        include: PATHS.src        // Look in this path
       },
       {
         test: /\.jsx?$/,          // For files ending in .js or .jsx
         loaders: [ 'eslint' ],    // run the eslint linter before running the loaders
-        include: PATHS.app        // Look in this path
+        include: PATHS.src        // Look in this path
       }
     ],
     loaders: [
       {
         test: /\.css$/,                       // For files ending in .css
         loaders: [ 'style', 'css', 'myth' ],  // run these loaders: myth, then css, then style
-        include: PATHS.app                    // Look in this path for the files
+        include: PATHS.src                    // Look in this path for the files
       },
       {
         test: /\.jsx?$/,                      // For files ending in .js or .jsx
         loaders: [ 'babel?cacheDirectory' ],  // run the babel-loader and cache the output
-        include: PATHS.app                    // Look in this path
+        include: PATHS.src                    // Look in this path
       }
     ]
   },

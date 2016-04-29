@@ -5,7 +5,7 @@
   "scripts": {
     "build": "webpack",
     "lint": "eslint . --ext .js --ext .jsx --cache || true",
-    "server": "json-server --watch db.json --routes routes.json --port 3004",
+    "server": "json-server --watch db.json --routes routes.json --port 3005",
     "start": "webpack-dev-server",
     "test": "mocha --opts ./test/mocha.opts test/tests.js"
   },
@@ -71,7 +71,10 @@
     "webpack-merge": "^0.12.0"
   },
   "dependencies": {
+    "axios": "^0.11.0",
     "json": "^9.0.3",
+    "json-server": "^0.8.10",
+    "ramda": "^0.21.0",
     "react": "^15.0.1",
     "react-bootstrap": "^0.29.2",
     "react-dom": "^15.0.1",
@@ -80,6 +83,7 @@
     "react-router-bootstrap": "^0.22.1",
     "react-router-redux": "^4.0.2",
     "redux": "^3.5.1",
+    "redux-actions": "^0.9.1",
     "server": "0.0.3"
   }
 }
