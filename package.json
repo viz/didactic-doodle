@@ -6,7 +6,7 @@
     "build": "webpack",
     "lint": "eslint . --ext .js --ext .jsx --cache || true",
     "server": "json-server --watch db.json --routes routes.json --port 3004",
-    "start": "webpack-dev-server",
+    "start": "webpack-dev-server --host $IP --port $PORT",
     "test": "mocha --opts ./test/mocha.opts test/tests.js"
   },
   "repository": {
@@ -73,13 +73,13 @@
   "dependencies": {
     "json": "^9.0.3",
     "react": "^15.0.1",
-    "react-bootstrap": "^0.29.2",
+    "react-bootstrap": "^0.29.3",
     "react-dom": "^15.0.1",
     "react-redux": "^4.4.5",
-    "react-router": "^2.3.0",
-    "react-router-bootstrap": "^0.22.1",
-    "react-router-redux": "^4.0.2",
-    "redux": "^3.5.1",
+    "react-router": "^2.4.0",
+    "react-router-bootstrap": "^0.23.0",
+    "react-router-redux": "^4.0.4",
+    "redux": "^3.5.2",
     "server": "0.0.3"
   }
 }

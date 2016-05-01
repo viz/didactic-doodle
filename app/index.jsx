@@ -43,10 +43,10 @@ render(<Provider store={store}>
   <div>
     <Router history={history}>
       <Route path='/' component={App}>
-        <IndexRoute component={Home}/>
-        <Route path='about' component={About}/>
+        <IndexRoute component={Home} />
+        <Route path='about' component={About} />
       </Route>
     </Router>
-    <DevTools/>
+    <DevTools />
   </div>
 </Provider>, div)
